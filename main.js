@@ -4,7 +4,6 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.set(-20, 5, -2);
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -133,63 +132,93 @@ controls.target.set(0, 0, 0);
 //     }
 // }
 
-let animation_time = 0.0;
+// let animation_time = 0.0;
 
-
-const ob1_geometry = new THREE.BoxGeometry(10, 2, 2);
-const ob1_material = new THREE.MeshBasicMaterial({
+const box_ob_geometry = new THREE.BoxGeometry(10, 3, 2);
+const box_ob_material = new THREE.MeshBasicMaterial({
     color: 0x48ff00
 });
 
-const ob1_mesh = new THREE.Mesh(ob1_geometry, ob1_material);
-ob1_mesh.position.set(0, 0, 10);
-scene.add(ob1_mesh);
+const box_ob_mesh1 = new THREE.Mesh(box_ob_geometry, box_ob_material);
+box_ob_mesh1.matrixAutoUpdate = false;
+scene.add(box_ob_mesh1);
 
-const edges = new THREE.EdgesGeometry(ob1_geometry); 
-const lineMaterial = new THREE.LineBasicMaterial({
-  color: 0x000000, 
-  linewidth: 2,
-  depthWrite: false
-});
+const box_ob_mesh2 = new THREE.Mesh(box_ob_geometry, box_ob_material);
+box_ob_mesh2.matrixAutoUpdate = false;
+scene.add(box_ob_mesh2);
 
-const edgeLines = new THREE.LineSegments(edges, lineMaterial);
-edgeLines.position.copy(ob1_mesh.position);
-scene.add(edgeLines);
+const box_ob_mesh3 = new THREE.Mesh(box_ob_geometry, box_ob_material);
+box_ob_mesh3.matrixAutoUpdate = false;
+scene.add(box_ob_mesh3);
 
+// const edges = new THREE.EdgesGeometry(ob1_geometry); 
+// const lineMaterial = new THREE.LineBasicMaterial({
+//   color: 0x000000, 
+//   linewidth: 2,
+//   depthWrite: false
+// });
 
-const ob1_bounding = new THREE.Box3().setFromObject(ob1_mesh);
+// const edgeLines = new THREE.LineSegments(edges, lineMaterial);
+// edgeLines.position.copy(ob1_mesh.position);
+// scene.add(edgeLines);
+
+// let boundingBoxHelper = new THREE.Box3Helper(new THREE.Box3(), 0xffff00); // Create Box3 helper with a yellow color
+// scene.add(boundingBoxHelper);
 
 const ball_geom = new THREE.SphereGeometry(1, 64,64);
 const ball_material = new THREE.MeshBasicMaterial({
     color: 0xff0000
 });
 
-
 const ball_mesh = new THREE.Mesh(ball_geom, ball_material);
-ball_mesh.position.set(0, 0, 0);
 scene.add(ball_mesh);
 
 
 let obstacles = [
-    ob1_bounding
-    //array of obstacles
+    {mesh: box_ob_mesh1, x: 0, y: 0, z: 10, isRotating: false},
+    {mesh: box_ob_mesh2, x: 0, y: 0, z: 20, isRotating: true},
+    {mesh: box_ob_mesh3, x: 0, y: 0, z: 30, isTranslating: true}
 ];
 
-function checkCollision(obs_bounding, ball_bounding) {
-    // Check if the box intersects with the sphere's bounding sphere
-    console.log("Box position:", ob1_mesh.position);
-    console.log("Ball position:", ball_mesh.position);
-    console.log("Box bounding:", ob1_bounding);
-    console.log("Ball bounding:", ball_bounding);
 
-    if (obs_bounding.intersectsSphere(ball_bounding)) {
-        console.log("The box and sphere are colliding!");
-        return true;
-    }
-    else{
-        console.log("The box and sphere are not colliding!");
-    }
+// TRANSFORMATIONS
+
+function translationMatrix(tx, ty, tz) {
+	return new THREE.Matrix4().set(
+		1, 0, 0, tx,
+		0, 1, 0, ty,
+		0, 0, 1, tz,
+		0, 0, 0, 1
+	);
 }
+
+function rotationMatrixX(theta) { 
+    return new THREE.Matrix4().set(
+        1, 0, 0, 0,
+        0, Math.cos(theta), -Math.sin(theta), 0,
+        0, Math.sin(theta), Math.cos(theta), 0,
+        0, 0, 0, 1
+    );
+}
+
+function rotationMatrixY(theta) {
+    return new THREE.Matrix4().set(
+        Math.cos(theta), 0, Math.sin(theta), 0,
+        0, 1, 0, 0,
+        -Math.sin(theta), 0, Math.cos(theta), 0,
+        0, 0, 0, 1
+    );
+}
+function rotationMatrixZ(theta) {
+	return new THREE.Matrix4().set(
+    Math.cos(theta), -Math.sin(theta), 0, 0,
+    Math.sin(theta), Math.cos(theta), 0, 0,
+    0, 0, 1, 0,
+    0, 0, 0, 1
+	);
+}
+
+
  
 // const cube1_texture = new THREE.TextureLoader().load('assets/stars.png');
 
@@ -242,101 +271,135 @@ function checkCollision(obs_bounding, ball_bounding) {
 // cube2_mesh.position.set(-2, 0, 0)
 // scene.add(cube2_mesh);
 
+
+//Game Properties
+let isAlive = true;
 const clock = new THREE.Clock();
-
-function translationMatrix(tx, ty, tz) {
-	return new THREE.Matrix4().set(
-		1, 0, 0, tx,
-		0, 1, 0, ty,
-		0, 0, 1, tz,
-		0, 0, 0, 1
-	);
-}
-
-function rotationMatrixX(theta) { 
-    return new THREE.Matrix4().set(
-        1, 0, 0, 0,
-        0, Math.cos(theta), -Math.sin(theta), 0,
-        0, Math.sin(theta), Math.cos(theta), 0,
-        0, 0, 0, 1
-    );
-}
-
-function rotationMatrixY(theta) {
-    return new THREE.Matrix4().set(
-        Math.cos(theta), 0, Math.sin(theta), 0,
-        0, 1, 0, 0,
-        -Math.sin(theta), 0, Math.cos(theta), 0,
-        0, 0, 0, 1
-    );
-}
-const speed = 0.1;
-const cSpeed = 0.1;
 let blendingFactor = 0.1;
 
+
+//Player properties
+const speed = 0.1;
 let moveLeft = false;
 let moveRight = false;
 let moveUp = false;
 let moveDown = false;
+let obstructed = false;
 
+
+// Camera properties
+const cSpeed = 0.5;
 let cLeft = false;
 let cRight = false;
 let cUp = false;
 let cDown = false;
-let obstructed = false;
 let c_x = -10;
-let c_y = 10;
-let c_z = -10;
+let c_y = 20;
+let c_z = -20;
+
+
+// HELPER FUNCTIONS
+
+function checkCollision(obs_bounding, ball_bounding) {
+    // Check if the box intersects with the sphere's bounding sphere
+    console.log("Box bounding:", obs_bounding);
+    console.log("Ball bounding:", ball_bounding);
+
+    if (obs_bounding.intersectsSphere(ball_bounding)) {
+        console.log("The box and sphere are colliding!");
+        return true;
+    }
+    else{
+        console.log("The box and sphere are not colliding!");
+        return false;
+    }
+
+}
+
 
 function animate() {
     controls.update();
-    let delta = clock.getDelta();
-    animation_time += delta;
+    // let delta = clock.getDelta();
+    // animation_time += delta;
    
     if (!obstructed){
-        ball_mesh.position.z += delta * 3;
         if (moveLeft) {
-            ball_mesh.position.x += speed;
+            if (ball_mesh.position.x < 15)
+                ball_mesh.position.x += speed;
         }
         if (moveRight) {
-            ball_mesh.position.x -= speed;
+            if (ball_mesh.position.x > -15)
+                ball_mesh.position.x -= speed;
         }
         if (moveUp) {
-            ball_mesh.position.y += speed;
+            if (ball_mesh.position.y < 15)
+                ball_mesh.position.y += speed;
         }
         if (moveDown) {
-            ball_mesh.position.y -= speed;
+            if (ball_mesh.position.y > -15)
+                ball_mesh.position.y -= speed;
         }
     }
-
+    
     ball_mesh.geometry.computeBoundingSphere();
     const ball_bounding = ball_mesh.geometry.boundingSphere.clone();
     ball_bounding.center.applyMatrix4(ball_mesh.matrixWorld);
-    obstacles.forEach(function (obs_bounding, index){
-        if (checkCollision(obs_bounding, ball_bounding)){
-            obstructed = true;
-        }
-        else{
-            obstructed = false;
-        }
+
+    obstacles.forEach(function (obs,index){
+
+        if (!obstructed){
+            let obs_incoming = translationMatrix(obs.x,obs.y, obs.z-clock.getElapsedTime() * 5);
+
+            let model_transform = new THREE.Matrix4();
+            if (obs.isRotating){
+                let obs_rotation = rotationMatrixZ(clock.getElapsedTime());
+                model_transform.multiply(obs_rotation);
+            }
+            if (obs.isTranslating){
+                let obs_translation;
+                if (clock.getElapsedTime() % 4 <= 2){
+                    obs_translation = translationMatrix(10 - (clock.getElapsedTime() % 4) * 10, 0, 0);
+                }
+                else {
+                    obs_translation = translationMatrix(10 - (4 - (clock.getElapsedTime() % 4)) * 10, 0, 0);
+                }
+                model_transform.multiply(obs_translation);
+            }
+
+            model_transform.multiply(obs_incoming);
+            obs.mesh.matrix.copy(model_transform);
+
+            const bounding = new THREE.Box3().setFromObject(obs.mesh);
+            // edgeLines.matrix.copy(obs.mesh.matrix);
+            // boundingBoxHelper.update();
+        
+            if (checkCollision(bounding, ball_bounding)){
+                isAlive = false;
+                obstructed = true;
+            }
+            else{
+                obstructed = false;
+            }
+        }   
     });
+
     let cameraTransform = new THREE.Matrix4();
     cameraTransform.copy(ball_mesh.matrix);
     if (cLeft) {
         if (c_x < 30)
-            c_x += 1;
+            c_x += cSpeed;
     }
     if (cRight) {
         if (c_x > -30)
-            c_x -= 1;
+            c_x -= cSpeed;
     }
     if (cUp) {
         if (c_y < 30)
-            c_y += 1;
+            c_y += cSpeed;
     }
     if (cDown) {
         if (c_y > -10)
-            c_y -= 1;
+            c_y -= cSpeed;
     }
     let offset = translationMatrix(c_x, c_y, c_z);
     cameraTransform.multiply(offset);
@@ -398,9 +461,6 @@ function animate() {
 
 renderer.setAnimationLoop(animate);
 
-// TODO: 2.e Keyboard Event Listener
-// Press 'c' to start and stop the rotating both cubes
-
 window.addEventListener('keydown', onKeyPress);
 function onKeyPress(event) {
     switch (event.key) {
@@ -430,6 +490,7 @@ function onKeyPress(event) {
             break;
      }
 }
+
 window.addEventListener('keyup', onKeyRelease);
 function onKeyRelease(event) {
     switch (event.key) {

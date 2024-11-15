@@ -164,7 +164,14 @@ let cDown = false;
 let c_x = -10;
 let c_y = 20;
 let c_z = -20;
-
+let switchperspective=false;
+let perspectivesangles = [
+    {index : 0, x: -3, y: 3, z: -20},
+    {index: 1, x: 3, y: 3,z: -20},
+    {index : 2, x: -3, y: -3, z: -20},
+    {index : 3, x:  3, y: -3, z: -20},
+] 
+let currentangles = perspectivesangles[0];
 
 
 // TRANSFORMATIONS
@@ -204,6 +211,15 @@ function rotationMatrixZ(theta) {
 	);
 }
 
+function scalingMatrix(x,y,z) {
+	return new THREE.Matrix4().set(
+    x, 0, 0, 0,
+    0, y, 0, 0,
+    0, 0, z, 0,
+    0, 0, 0, 1
+	);
+}
+
 function oscillation(period, time, speed, adjust){
     return Math.abs(speed * (time % period) - speed*2) + adjust;
 }
@@ -223,7 +239,7 @@ scene.add(floor);
 let obstacles = [];
 
 function createBoxObstacle(x_i, y_i, z_i, length, width, height, transforms){
-    const box_ob_geometry = new THREE.BoxGeometry(length, height, width);
+    const box_ob_geometry = new THREE.BoxGeometry(length, width, height);
     const box_ob_material = new THREE.MeshBasicMaterial({
     color: 0x48ff00
     });
@@ -274,10 +290,32 @@ function addScaling(period, speed, adjust){
     return {tr_type: scaling, period, speed, adjust};
 }
 
-createBoxObstacle(0,0,50,10,3,2,[]);
-createBoxObstacle(0,0,70,10,3,2,[addOscillatingTranslation(4, 10, 0, 0, -10)]);
-createBoxObstacle(0,0,90,10,3,2,[addRotationZ(5)]);
+// createBoxObstacle(0,0,50,10,3,2,[]);
+// createBoxObstacle(0,0,70,10,3,2,[addOscillatingTranslation(4, 10, 0, 0, -10)]);
+// createBoxObstacle(0,0,90,10,3,2,[addRotationZ(5)]);
 
+createBoxObstacle(10,0,30,10,3,2,[addScaling(4, 2, 1)]);
+createBoxObstacle(-6,0,30,10,3,2,[addScaling(4, 2, 1)]);
+
+createBoxObstacle(8,0,40,10,3,2,[addScaling(4, 2, 1)]);
+createBoxObstacle(-9,0,40,10,3,2,[addScaling(4, 2, 1)]);
+
+createBoxObstacle(10,0,50,6,4,2,[]);
+createBoxObstacle(1,-7,50,6,4,2,[]);
+createBoxObstacle(5,6,50,6,4,2,[]);
+createBoxObstacle(7,-4,50,6,4,2,[]);
+createBoxObstacle(9,9,50,6,4,2,[]);
+createBoxObstacle(-9,9,50,6,4,2,[]);
+createBoxObstacle(8,-9,50,6,4,2,[]);
+createBoxObstacle(-8,-7,50,6,4,2,[]);
+createBoxObstacle(-8,4,50,6,4,2,[]);
+createBoxObstacle(0,0,50,6,4,2,[]);
+
+createBoxObstacle(8,0,60,13,32,2,[addOscillatingTranslation(4, 10, 0, 0, -10)]);
+createBoxObstacle(-9,0,60,13,32,2,[addOscillatingTranslation(4, 10, 0, 0, -10)]);
+
+createBoxObstacle(8,0,60,5,3,2,[addRotationZ(1), addOscillatingTranslation(4, 10, 0, 0, -10), addScaling(4, 2, 1)]);
+createBoxObstacle(-8,0,60,5,3,2,[addRotationZ(1), addOscillatingTranslation(4, 10, 0, 0, -10), addScaling(4, 2, 1)]);
 // const box_ob_geometry = new THREE.BoxGeometry(10, 3, 2);
 // const box_ob_material = new THREE.MeshBasicMaterial({
 //     color: 0x48ff00
@@ -319,7 +357,6 @@ const ball_material = new THREE.MeshBasicMaterial({
 
 const ball_mesh = new THREE.Mesh(ball_geom, ball_material);
 scene.add(ball_mesh);
-
 
  
 // const cube1_texture = new THREE.TextureLoader().load('assets/stars.png');
@@ -415,7 +452,6 @@ function checkCollision(obs_bounding, ball_bounding) {
 // }
 
 
-
 function animate() {
     controls.update();
     // let delta = clock.getDelta();
@@ -462,12 +498,19 @@ function animate() {
                 // if (clock.getElapsedTime() % 4 <= 2){
                 //     obs_translation = translationMatrix(10 - (clock.getElapsedTime() % 4) * 10, 0, 0);
                     
-                // }
+                //}
                 // else {
                 //     obs_translation = translationMatrix(10 - (4 - (clock.getElapsedTime() % 4)) * 10, 0, 0);
-
+                // }
                 // model_transform.multiply(obs_translation);
-             //}
+            //}
+            // if (obs.isScaling) {
+            //     let val= Math.abs(2*(clock.getElapsedTime()%4)-4)+1;
+            //     let obs_scaling = scalingMatrix(val,val,1);
+                 //model_transform.multiply(translationMatrix(obs.x,obs.y,obs.z));
+                //  model_transform.multiply(obs_scaling);
+                 //model_transform.multiply(translationMatrix(-obs.x,-obs.y,-obs.z));
+            //}
 
             // if (obs.isRotating){
             //     let obs_rotation = rotationMatrixZ(clock.getElapsedTime());
@@ -495,7 +538,7 @@ function animate() {
                         matrix = rotationMatrixZ(t.speed * game_time);
                         break;
                     case scaling:
-                        matrix = scaling(oscillation(t.period, game_time, t.speed, t.adjust), oscillation(t.period, game_time, t.speed, t.adjust ), oscillation(t.period, game_time, t.speed, t.adjust));
+                        matrix = scalingMatrix(oscillation(t.period, game_time, t.speed, t.adjust), oscillation(t.period, game_time, t.speed, t.adjust), 1);
                         break;
                 }
                 
@@ -509,6 +552,7 @@ function animate() {
             obs.mesh.matrix.copy(model_transform);
 
             const bounding = new THREE.Box3().setFromObject(obs.mesh);
+            
             // let corners = [];
             // const min = bounding.min;
             // const max = bounding.max;
@@ -578,32 +622,69 @@ function animate() {
         }   
     });
 
-    // let cameraTransform = new THREE.Matrix4();
-    // cameraTransform.copy(ball_mesh.matrix);
-    // if (cLeft) {
-    //     if (c_x < 30)
-    //         c_x += cSpeed;
-    // }
-    // if (cRight) {
-    //     if (c_x > -60)
-    //         c_x -= cSpeed;
-    // }
-    // if (cUp) {
-    //     if (c_z < 60)
-    //         c_z += cSpeed;
-    // }
-    // if (cDown) {
-    //     if (c_z > -60)
-    //         c_z -= cSpeed;
-    // }
-    // let offset = translationMatrix(c_x, c_y, c_z);
-    // cameraTransform.multiply(offset);
-    // let cameraPosition = new THREE.Vector3();
-    // cameraPosition.setFromMatrixPosition(cameraTransform);
-    // camera.position.lerp(cameraPosition, blendingFactor);
-    // let ballPosition = new THREE.Vector3();
-    // ballPosition.setFromMatrixPosition(ball_mesh.matrix);
-    // camera.lookAt(ballPosition);
+    let cameraTransform = new THREE.Matrix4();
+    cameraTransform.copy(ball_mesh.matrix);
+
+    if (!switchperspective) {
+        if (cLeft) {
+            if (c_x < 30)
+                c_x += cSpeed;
+        }
+        if (cRight) {
+            if (c_x > -60)
+                c_x -= cSpeed;
+        }
+        if (cUp) {
+            if (c_z < 60)
+                c_z += cSpeed;
+        }
+        if (cDown) {
+            if (c_z > -60)
+                c_z -= cSpeed;
+        }
+    
+        let offset = translationMatrix(c_x, c_y, c_z);
+        cameraTransform.multiply(offset);
+        let cameraPosition = new THREE.Vector3();
+        cameraPosition.setFromMatrixPosition(cameraTransform);
+        camera.position.lerp(cameraPosition, blendingFactor);
+        let ballPosition = new THREE.Vector3();
+        ballPosition.setFromMatrixPosition(ball_mesh.matrix);
+        camera.lookAt(ballPosition);
+    }
+    else {
+        if (cLeft) {
+            if (currentangles.index == 0 || currentangles.index == 2) {
+                currentangles=perspectivesangles[currentangles.index+1 %4];
+            }
+        }
+        if (cRight) {
+            if (currentangles.index == 1 || currentangles.index == 3) {
+                currentangles=perspectivesangles[currentangles.index-1 %4];
+            }
+        }
+        if (cUp) {
+            if (currentangles.index == 2 || currentangles.index == 3) {
+                currentangles=perspectivesangles[currentangles.index-2 %4];
+            }
+        }
+        if (cDown) {
+            if (currentangles.index == 0 || currentangles.index == 1) {
+                currentangles=perspectivesangles[currentangles.index+2 %4];
+            } 
+        }
+
+        let offset = translationMatrix(currentangles.x, currentangles.y, currentangles.z);
+        cameraTransform.multiply(offset);
+        let cameraPosition = new THREE.Vector3();
+        cameraPosition.setFromMatrixPosition(cameraTransform);
+        camera.position.lerp(cameraPosition, blendingFactor);
+        let ballPosition = new THREE.Vector3();
+        ballPosition.setFromMatrixPosition(ball_mesh.matrix);
+        camera.lookAt(ballPosition.x,ballPosition.y,ballPosition.z+20);
+    
+    }
+
 
 
     renderer.render(scene, camera);
@@ -712,6 +793,8 @@ function onKeyRelease(event) {
         case 'ArrowUp': 
             cUp = false;
             break;
+        case 'p':
+            switchperspective=!switchperspective;
     }
 }
 

@@ -4,6 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(-10,10,-10)
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -12,6 +13,12 @@ document.body.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(0, 0, 0);
+
+const light = new THREE.AmbientLight(0x404040); // Ambient light
+scene.add(light);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(5, 10, 5).normalize();
+scene.add(directionalLight);
 
 
 // class Texture_Rotate {
@@ -134,22 +141,60 @@ controls.target.set(0, 0, 0);
 
 // let animation_time = 0.0;
 
-const box_ob_geometry = new THREE.BoxGeometry(10, 3, 2);
-const box_ob_material = new THREE.MeshBasicMaterial({
+const floorGeometry = new THREE.PlaneGeometry(50, 50);
+const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x7cfc00, side: THREE.DoubleSide });
+const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+floor.rotation.x = Math.PI / 2;
+floor.position.y = -16;
+scene.add(floor);
+
+
+let obstacles = [];
+
+function createBoxObstacle(x_i, y_i, z_i, isR, isT, isS, length, width, height){
+    const box_ob_geometry = new THREE.BoxGeometry(length, width, height);
+    const box_ob_material = new THREE.MeshBasicMaterial({
     color: 0x48ff00
-});
+    });
 
-const box_ob_mesh1 = new THREE.Mesh(box_ob_geometry, box_ob_material);
-box_ob_mesh1.matrixAutoUpdate = false;
-scene.add(box_ob_mesh1);
+    const box_ob_mesh = new THREE.Mesh(box_ob_geometry, box_ob_material);
+    box_ob_mesh.matrixAutoUpdate = false;
+    scene.add(box_ob_mesh);
 
-const box_ob_mesh2 = new THREE.Mesh(box_ob_geometry, box_ob_material);
-box_ob_mesh2.matrixAutoUpdate = false;
-scene.add(box_ob_mesh2);
+    obstacles.push({mesh: box_ob_mesh, x: x_i, y: y_i, z: z_i, isRotating: isR, isTranslating: isT, isScaling: isS});
+}
 
-const box_ob_mesh3 = new THREE.Mesh(box_ob_geometry, box_ob_material);
-box_ob_mesh3.matrixAutoUpdate = false;
-scene.add(box_ob_mesh3);
+function createSphereObstacle(){
+    
+}
+
+function createCustomObstacles(){
+
+}
+
+createBoxObstacle(0,0,50,false,false,false,10,3,2);
+createBoxObstacle(0,0,70,true,true,false,10,3,2);
+createBoxObstacle(0,0,90,false,true,false,10,3,2);
+
+// const box_ob_geometry = new THREE.BoxGeometry(10, 3, 2);
+// const box_ob_material = new THREE.MeshBasicMaterial({
+//     color: 0x48ff00
+// });
+
+// const box_ob_mesh1 = new THREE.Mesh(box_ob_geometry, box_ob_material);
+// box_ob_mesh1.matrixAutoUpdate = false;
+// // box_ob_mesh1.position.set(0,0,10);
+// scene.add(box_ob_mesh1);
+
+// const box_ob_mesh2 = new THREE.Mesh(box_ob_geometry, box_ob_material);
+// box_ob_mesh2.matrixAutoUpdate = false;
+// // box_ob_mesh2.position.set(0,0,20);
+// scene.add(box_ob_mesh2);
+
+// const box_ob_mesh3 = new THREE.Mesh(box_ob_geometry, box_ob_material);
+// box_ob_mesh3.matrixAutoUpdate = false;
+// // box_ob_mesh3.position.set(0,0,30);
+// scene.add(box_ob_mesh3);
 
 // const edges = new THREE.EdgesGeometry(ob1_geometry); 
 // const lineMaterial = new THREE.LineBasicMaterial({
@@ -165,7 +210,7 @@ scene.add(box_ob_mesh3);
 // let boundingBoxHelper = new THREE.Box3Helper(new THREE.Box3(), 0xffff00); // Create Box3 helper with a yellow color
 // scene.add(boundingBoxHelper);
 
-const ball_geom = new THREE.SphereGeometry(1, 64,64);
+const ball_geom = new THREE.SphereGeometry(1, 1, 1);
 const ball_material = new THREE.MeshBasicMaterial({
     color: 0xff0000
 });
@@ -174,12 +219,11 @@ const ball_mesh = new THREE.Mesh(ball_geom, ball_material);
 scene.add(ball_mesh);
 
 
-let obstacles = [
-    {mesh: box_ob_mesh1, x: 0, y: 0, z: 10, isRotating: false},
-    {mesh: box_ob_mesh2, x: 0, y: 0, z: 20, isRotating: true},
-    {mesh: box_ob_mesh3, x: 0, y: 0, z: 30, isTranslating: true}
-];
-
+// let obstacles = [
+//     {mesh: box_ob_mesh1, x: 0, y: 0, z: 10, isRotating: false},
+//     {mesh: box_ob_mesh2, x: 0, y: 0, z: 20, isRotating: true},
+//     {mesh: box_ob_mesh3, x: 0, y: 0, z: 30, isTranslating: true}
+// ];
 
 // TRANSFORMATIONS
 
@@ -306,20 +350,42 @@ function checkCollision(obs_bounding, ball_bounding) {
     console.log("Ball bounding:", ball_bounding);
 
     if (obs_bounding.intersectsSphere(ball_bounding)) {
-        console.log("The box and sphere are colliding!");
+        //console.log("The box and sphere are colliding!");
         return true;
     }
     else{
-        console.log("The box and sphere are not colliding!");
+        //console.log("The box and sphere are not colliding!");
         return false;
     }
-
 }
+
+// function checkSphereBoxCollision(sphere, box) {
+//     // Step 1: Create a matrix to hold the inverse of the box's world matrix
+//     const boxWorldMatrix = new THREE.Matrix4();
+//     box.updateWorldMatrix(true, false);  // Make sure world matrix is up to date
+//     boxWorldMatrix.copy(box.matrixWorld).invert();  // Invert the world matrix of the box
+//     console.log(boxWorldMatrix)
+
+//     // Step 2: Transform the sphere's center position into the box's local space
+//     const sphereCenterLocal = sphere.position.clone().applyMatrix4(boxWorldMatrix);
+
+//     // Step 3: Get the AABB of the box in local space
+//     const boxLocal = new THREE.Box3().setFromObject(box);  // AABB of the box in local coordinates
+
+//     // Step 4: Check if the transformed sphere center is inside the box's AABB
+//     const closestPoint = new THREE.Vector3();
+//     boxLocal.clampPoint(sphereCenterLocal, closestPoint);  // Clamp the sphere center to the closest point on the box's AABB
+
+//     // Step 5: Check if the distance between the sphere center and the closest point is less than or equal to the sphere's radius
+//     const distance = closestPoint.distanceTo(sphereCenterLocal);
+//     return distance <= sphere.geometry.parameters.radius;
+// }
+
 
 
 function animate() {
     controls.update();
-    // let delta = clock.getDelta();
+    let delta = clock.getDelta();
     // animation_time += delta;
    
     if (!obstructed){
@@ -345,20 +411,29 @@ function animate() {
     const ball_bounding = ball_mesh.geometry.boundingSphere.clone();
     ball_bounding.center.applyMatrix4(ball_mesh.matrixWorld);
 
+    // const ball_bounding = new THREE.Sphere(ball_mesh.position, 0.5);
+
     obstacles.forEach(function (obs,index){
 
         if (!obstructed){
+            //constant speed of obstacles moving towards player 
+            
             let obs_incoming = translationMatrix(obs.x,obs.y, obs.z-clock.getElapsedTime() * 5);
 
             let model_transform = new THREE.Matrix4();
             if (obs.isRotating){
+                console.log(obs.mesh.rotation)
                 let obs_rotation = rotationMatrixZ(clock.getElapsedTime());
                 model_transform.multiply(obs_rotation);
+
             }
             if (obs.isTranslating){
                 let obs_translation;
+                
+                //use oscilating function for matrix
                 if (clock.getElapsedTime() % 4 <= 2){
                     obs_translation = translationMatrix(10 - (clock.getElapsedTime() % 4) * 10, 0, 0);
+                    
                 }
                 else {
                     obs_translation = translationMatrix(10 - (4 - (clock.getElapsedTime() % 4)) * 10, 0, 0);
@@ -366,12 +441,61 @@ function animate() {
                 model_transform.multiply(obs_translation);
             }
 
+
             model_transform.multiply(obs_incoming);
+            
             obs.mesh.matrix.copy(model_transform);
 
             const bounding = new THREE.Box3().setFromObject(obs.mesh);
+            // let corners = [];
+            // const min = bounding.min;
+            // const max = bounding.max;
+            // corners.push(new THREE.Vector3(min.x, min.y, min.z));
+            // corners.push(new THREE.Vector3(min.x, min.y, max.z));
+            // corners.push(new THREE.Vector3(min.x, max.y, min.z));
+            // corners.push(new THREE.Vector3(min.x, max.y, max.z));
+            // corners.push(new THREE.Vector3(max.x, min.y, min.z));
+            // corners.push(new THREE.Vector3(max.x, min.y, max.z));
+            // corners.push(new THREE.Vector3(max.x, max.y, min.z));
+            // corners.push(new THREE.Vector3(max.x, max.y, max.z));
+
+            // const rotatedCorners = corners.map(corner => {
+            //     const transformedCorner = corner.clone().applyMatrix4(obs.mesh.matrixWorld);
+            //     return transformedCorner;
+            // });
+
+            // const rotatedBox = new THREE.Box3();
+            // rotatedBox.makeEmpty();
+            // rotatedCorners.forEach(corner => rotatedBox.expandByPoint(corner));
+
+            // console.log(rotatedBox);
+
+        
+            // const bounding = new THREE.Box3();
+            // bounding.makeEmpty();
+            // obs.mesh.geometry.computeBoundingBox();
+            // const bounding = obs.mesh.geometry.boundingBox.clone();
+            // bounding.applyMatrix4(obs.mesh.matrixWorld);
+
+            // obs_mesh.geometry.comp();
+            // const bounding = ball_mesh.geometry.boundingBox.clone();
+            // bounding.center.applyMatrix4(obs_mesh.matrixWorld);
+            
+            
             // edgeLines.matrix.copy(obs.mesh.matrix);
             // boundingBoxHelper.update();
+
+
+            // const geometryVertices = [];
+            // geometry.getAttribute('position').array.forEach((value, index) => {
+            //     if (index % 3 === 0) {
+            //         geometryVertices.push(new THREE.Vector3(
+            //             geometry.getAttribute('position').array[index],
+            //             geometry.getAttribute('position').array[index + 1],
+            //             geometry.getAttribute('position').array[index + 2]
+            //         ));
+            //     }
+            // });
         
             if (checkCollision(bounding, ball_bounding)){
                 isAlive = false;
@@ -380,35 +504,44 @@ function animate() {
             else{
                 obstructed = false;
             }
+
+            // if (checkSphereBoxCollision(ball_mesh, obs.mesh)) {
+            //     console.log("Collision detected!");
+            //     isAlive = false;
+            //     obstructed = true;
+            // } else {
+            //     console.log("No collision");
+            //     obstructed = false;
+            // }
         }   
     });
 
-    let cameraTransform = new THREE.Matrix4();
-    cameraTransform.copy(ball_mesh.matrix);
-    if (cLeft) {
-        if (c_x < 30)
-            c_x += cSpeed;
-    }
-    if (cRight) {
-        if (c_x > -30)
-            c_x -= cSpeed;
-    }
-    if (cUp) {
-        if (c_y < 30)
-            c_y += cSpeed;
-    }
-    if (cDown) {
-        if (c_y > -10)
-            c_y -= cSpeed;
-    }
-    let offset = translationMatrix(c_x, c_y, c_z);
-    cameraTransform.multiply(offset);
-    let cameraPosition = new THREE.Vector3();
-    cameraPosition.setFromMatrixPosition(cameraTransform);
-    camera.position.lerp(cameraPosition, blendingFactor);
-    let ballPosition = new THREE.Vector3();
-    ballPosition.setFromMatrixPosition(ball_mesh.matrix);
-    camera.lookAt(ballPosition);
+    // let cameraTransform = new THREE.Matrix4();
+    // cameraTransform.copy(ball_mesh.matrix);
+    // if (cLeft) {
+    //     if (c_x < 30)
+    //         c_x += cSpeed;
+    // }
+    // if (cRight) {
+    //     if (c_x > -60)
+    //         c_x -= cSpeed;
+    // }
+    // if (cUp) {
+    //     if (c_z < 60)
+    //         c_z += cSpeed;
+    // }
+    // if (cDown) {
+    //     if (c_z > -60)
+    //         c_z -= cSpeed;
+    // }
+    // let offset = translationMatrix(c_x, c_y, c_z);
+    // cameraTransform.multiply(offset);
+    // let cameraPosition = new THREE.Vector3();
+    // cameraPosition.setFromMatrixPosition(cameraTransform);
+    // camera.position.lerp(cameraPosition, blendingFactor);
+    // let ballPosition = new THREE.Vector3();
+    // ballPosition.setFromMatrixPosition(ball_mesh.matrix);
+    // camera.lookAt(ballPosition);
 
 
     renderer.render(scene, camera);
@@ -519,4 +652,10 @@ function onKeyRelease(event) {
             break;
     }
 }
+
+window.addEventListener('resize', () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+});
 

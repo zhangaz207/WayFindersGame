@@ -16,8 +16,8 @@ controls.target.set(0, 0, 0);
 
 const light = new THREE.AmbientLight(0x404040); // Ambient light
 scene.add(light);
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-directionalLight.position.set(5, 10, 5).normalize();
+const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
+directionalLight.position.set(5, 10, -5).normalize();
 scene.add(directionalLight);
 
 // class Texture_Rotate {
@@ -229,19 +229,147 @@ function oscillation(period, time, speed, adjust){
 // }
 
 
+// Custom Phong Shader has already been implemented, no need to make change.
+function createPhongMaterial(materialProperties) {
+    const numLights = 1;
+    // Vertex Shader
+    let vertexShader = `
+        precision mediump float;
+        const int N_LIGHTS = ${numLights};
+        uniform float ambient, diffusivity, specularity, smoothness;
+        uniform vec4 light_positions_or_vectors[N_LIGHTS];
+        uniform vec4 light_colors[N_LIGHTS];
+        uniform float light_attenuation_factors[N_LIGHTS];
+        uniform vec4 shape_color;
+        uniform vec3 squared_scale;
+        uniform vec3 camera_center;
+        varying vec3 N, vertex_worldspace;
+
+        // ***** PHONG SHADING HAPPENS HERE: *****
+        vec3 phong_model_lights(vec3 N, vec3 vertex_worldspace) {
+            vec3 E = normalize(camera_center - vertex_worldspace);
+            vec3 result = vec3(0.0);
+            for(int i = 0; i < N_LIGHTS; i++) {
+                vec3 surface_to_light_vector = light_positions_or_vectors[i].xyz - 
+                    light_positions_or_vectors[i].w * vertex_worldspace;
+                float distance_to_light = length(surface_to_light_vector);
+                vec3 L = normalize(surface_to_light_vector);
+                vec3 H = normalize(L + E);
+                float diffuse = max(dot(N, L), 0.0);
+                float specular = pow(max(dot(N, H), 0.0), smoothness);
+                float attenuation = 1.0 / (1.0 + light_attenuation_factors[i] * distance_to_light * distance_to_light);
+                vec3 light_contribution = shape_color.xyz * light_colors[i].xyz * diffusivity * diffuse
+                                        + light_colors[i].xyz * specularity * specular;
+                result += attenuation * light_contribution;
+            }
+            return result;
+        }
+
+        uniform mat4 model_transform;
+        uniform mat4 projection_camera_model_transform;
+
+        void main() {
+            gl_Position = projection_camera_model_transform * vec4(position, 1.0);
+            N = normalize(mat3(model_transform) * normal / squared_scale);
+            vertex_worldspace = (model_transform * vec4(position, 1.0)).xyz;
+        }
+    `;
+    // Fragment Shader
+    let fragmentShader = `
+        precision mediump float;
+        const int N_LIGHTS = ${numLights};
+        uniform float ambient, diffusivity, specularity, smoothness;
+        uniform vec4 light_positions_or_vectors[N_LIGHTS];
+        uniform vec4 light_colors[N_LIGHTS];
+        uniform float light_attenuation_factors[N_LIGHTS];
+        uniform vec4 shape_color;
+        uniform vec3 camera_center;
+        varying vec3 N, vertex_worldspace;
+
+        // ***** PHONG SHADING HAPPENS HERE: *****
+        vec3 phong_model_lights(vec3 N, vec3 vertex_worldspace) {
+            vec3 E = normalize(camera_center - vertex_worldspace);
+            vec3 result = vec3(0.0);
+            for(int i = 0; i < N_LIGHTS; i++) {
+                vec3 surface_to_light_vector = light_positions_or_vectors[i].xyz - 
+                    light_positions_or_vectors[i].w * vertex_worldspace;
+                float distance_to_light = length(surface_to_light_vector);
+                vec3 L = normalize(surface_to_light_vector);
+                vec3 H = normalize(L + E);
+                float diffuse = max(dot(N, L), 0.0);
+                float specular = pow(max(dot(N, H), 0.0), smoothness);
+                float attenuation = 1.0 / (1.0 + light_attenuation_factors[i] * distance_to_light * distance_to_light);
+                vec3 light_contribution = shape_color.xyz * light_colors[i].xyz * diffusivity * diffuse
+                                        + light_colors[i].xyz * specularity * specular;
+                result += attenuation * light_contribution;
+            }
+            return result;
+        }
+
+        void main() {
+            // Compute an initial (ambient) color:
+            vec4 color = vec4(shape_color.xyz * ambient, shape_color.w);
+            // Compute the final color with contributions from lights:
+            color.xyz += phong_model_lights(normalize(N), vertex_worldspace);
+            gl_FragColor = color;
+        }
+    `;
+
+    let shape_color = new THREE.Vector4(
+        materialProperties.color.r, 
+        materialProperties.color.g, 
+        materialProperties.color.b, 
+        1.0
+    );
+    // Prepare uniforms
+    const uniforms = {
+        ambient: { value: materialProperties.ambient },
+        diffusivity: { value: materialProperties.diffusivity },
+        specularity: { value: materialProperties.specularity },
+        smoothness: { value: materialProperties.smoothness },
+        shape_color: { value: shape_color },
+        squared_scale: { value: new THREE.Vector3(1.0, 1.0, 1.0) },
+        camera_center: { value: new THREE.Vector3() },
+        model_transform: { value: new THREE.Matrix4() },
+        projection_camera_model_transform: { value: new THREE.Matrix4() },
+        light_positions_or_vectors: { value: [] },
+        light_colors: { value: [] },
+        light_attenuation_factors: { value: [] }
+    };
+
+    // Create the ShaderMaterial using the custom vertex and fragment shaders
+    return new THREE.ShaderMaterial({
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader,
+        uniforms: uniforms
+    });
+}
+
+
+
+
 const floorGeometry = new THREE.PlaneGeometry(50, 50);
-const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x7cfc00, side: THREE.DoubleSide });
+const floorMaterial = new THREE.MeshPhongMaterial({ color: 0xc0c0c0, side: THREE.DoubleSide });
 const floor = new THREE.Mesh(floorGeometry, floorMaterial);
 floor.rotation.x = Math.PI / 2;
 floor.position.y = -16;
 scene.add(floor);
 
+const ball_geom = new THREE.SphereGeometry(1, 64, 64);
+const ball_material = new THREE.MeshPhongMaterial({
+    color: 0xff0000
+});
+
+const ball_mesh = new THREE.Mesh(ball_geom, ball_material);
+scene.add(ball_mesh);
+
+
 let obstacles = [];
 
 function createBoxObstacle(x_i, y_i, z_i, length, width, height, transforms){
     const box_ob_geometry = new THREE.BoxGeometry(length, width, height);
-    const box_ob_material = new THREE.MeshBasicMaterial({
-    color: 0x48ff00
+    const box_ob_material = new THREE.MeshPhongMaterial({
+    color: 0x48ff00, flatShading : true
     });
     const box_ob_mesh = new THREE.Mesh(box_ob_geometry, box_ob_material);
     box_ob_mesh.matrixAutoUpdate = false;
@@ -311,11 +439,11 @@ createBoxObstacle(-8,-7,50,6,4,2,[]);
 createBoxObstacle(-8,4,50,6,4,2,[]);
 createBoxObstacle(0,0,50,6,4,2,[]);
 
-createBoxObstacle(8,0,60,13,32,2,[addOscillatingTranslation(4, 10, 0, 0, -10)]);
-createBoxObstacle(-9,0,60,13,32,2,[addOscillatingTranslation(4, 10, 0, 0, -10)]);
+createBoxObstacle(-10,0,65,16,32,2,[addOscillatingTranslation(4, 10, 0, 0, -10)]);
+createBoxObstacle(10,0,65,16,32,2,[addOscillatingTranslation(4, 10, 0, 0, -10)]);
 
-createBoxObstacle(8,0,60,5,3,2,[addRotationZ(1), addOscillatingTranslation(4, 10, 0, 0, -10), addScaling(4, 2, 1)]);
-createBoxObstacle(-8,0,60,5,3,2,[addRotationZ(1), addOscillatingTranslation(4, 10, 0, 0, -10), addScaling(4, 2, 1)]);
+createBoxObstacle(8,0,75,5,3,2,[addRotationZ(1), addOscillatingTranslation(4, 10, 0, 0, -10), addScaling(4, 2, 1)]);
+createBoxObstacle(-8,0,75,5,3,2,[addRotationZ(1), addOscillatingTranslation(4, 10, 0, 0, -10), addScaling(4, 2, 1)]);
 // const box_ob_geometry = new THREE.BoxGeometry(10, 3, 2);
 // const box_ob_material = new THREE.MeshBasicMaterial({
 //     color: 0x48ff00
@@ -350,13 +478,6 @@ createBoxObstacle(-8,0,60,5,3,2,[addRotationZ(1), addOscillatingTranslation(4, 1
 // let boundingBoxHelper = new THREE.Box3Helper(new THREE.Box3(), 0xffff00); // Create Box3 helper with a yellow color
 // scene.add(boundingBoxHelper);
 
-const ball_geom = new THREE.SphereGeometry(1, 64, 64);
-const ball_material = new THREE.MeshBasicMaterial({
-    color: 0xff0000
-});
-
-const ball_mesh = new THREE.Mesh(ball_geom, ball_material);
-scene.add(ball_mesh);
 
  
 // const cube1_texture = new THREE.TextureLoader().load('assets/stars.png');

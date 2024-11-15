@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { perspectiveDepthToViewZ } from 'three/webgpu';
 
 const scene = new THREE.Scene();
 
@@ -210,7 +211,7 @@ createBoxObstacle(0,0,90,false,true,false,10,3,2);
 // let boundingBoxHelper = new THREE.Box3Helper(new THREE.Box3(), 0xffff00); // Create Box3 helper with a yellow color
 // scene.add(boundingBoxHelper);
 
-const ball_geom = new THREE.SphereGeometry(1, 1, 1);
+const ball_geom = new THREE.SphereGeometry(1, 64, 64);
 const ball_material = new THREE.MeshBasicMaterial({
     color: 0xff0000
 });
@@ -340,6 +341,15 @@ let cDown = false;
 let c_x = -10;
 let c_y = 20;
 let c_z = -20;
+let switchperspective=false;
+let perspectivesangles = [
+    {index : 0, x: -5, y: 5, z: -10},
+    {index: 1, x: 5, y: 5,z: -10},
+    {index : 2, x: -5, y: -5, z: -10},
+    {index : 3, x:  5, y: -5, z: -10},
+] 
+let currentangles = perspectivesangles[0];
+
 
 
 // HELPER FUNCTIONS
@@ -516,32 +526,69 @@ function animate() {
         }   
     });
 
-    // let cameraTransform = new THREE.Matrix4();
-    // cameraTransform.copy(ball_mesh.matrix);
-    // if (cLeft) {
-    //     if (c_x < 30)
-    //         c_x += cSpeed;
-    // }
-    // if (cRight) {
-    //     if (c_x > -60)
-    //         c_x -= cSpeed;
-    // }
-    // if (cUp) {
-    //     if (c_z < 60)
-    //         c_z += cSpeed;
-    // }
-    // if (cDown) {
-    //     if (c_z > -60)
-    //         c_z -= cSpeed;
-    // }
-    // let offset = translationMatrix(c_x, c_y, c_z);
-    // cameraTransform.multiply(offset);
-    // let cameraPosition = new THREE.Vector3();
-    // cameraPosition.setFromMatrixPosition(cameraTransform);
-    // camera.position.lerp(cameraPosition, blendingFactor);
-    // let ballPosition = new THREE.Vector3();
-    // ballPosition.setFromMatrixPosition(ball_mesh.matrix);
-    // camera.lookAt(ballPosition);
+    let cameraTransform = new THREE.Matrix4();
+    cameraTransform.copy(ball_mesh.matrix);
+
+    if (!switchperspective) {
+        if (cLeft) {
+            if (c_x < 30)
+                c_x += cSpeed;
+        }
+        if (cRight) {
+            if (c_x > -60)
+                c_x -= cSpeed;
+        }
+        if (cUp) {
+            if (c_z < 60)
+                c_z += cSpeed;
+        }
+        if (cDown) {
+            if (c_z > -60)
+                c_z -= cSpeed;
+        }
+    
+        let offset = translationMatrix(c_x, c_y, c_z);
+        cameraTransform.multiply(offset);
+        let cameraPosition = new THREE.Vector3();
+        cameraPosition.setFromMatrixPosition(cameraTransform);
+        camera.position.lerp(cameraPosition, blendingFactor);
+        let ballPosition = new THREE.Vector3();
+        ballPosition.setFromMatrixPosition(ball_mesh.matrix);
+        camera.lookAt(ballPosition);
+    }
+    else {
+        if (cLeft) {
+            if (currentangles.index == 0 || currentangles.index == 2) {
+                currentangles=perspectivesangles[currentangles.index+1 %4];
+            }
+        }
+        if (cRight) {
+            if (currentangles.index == 1 || currentangles.index == 3) {
+                currentangles=perspectivesangles[currentangles.index-1 %4];
+            }
+        }
+        if (cUp) {
+            if (currentangles.index == 2 || currentangles.index == 3) {
+                currentangles=perspectivesangles[currentangles.index-2 %4];
+            }
+        }
+        if (cDown) {
+            if (currentangles.index == 0 || currentangles.index == 1) {
+                currentangles=perspectivesangles[currentangles.index+2 %4];
+            } 
+        }
+
+        let offset = translationMatrix(currentangles.x, currentangles.y, currentangles.z);
+        cameraTransform.multiply(offset);
+        let cameraPosition = new THREE.Vector3();
+        cameraPosition.setFromMatrixPosition(cameraTransform);
+        camera.position.lerp(cameraPosition, blendingFactor);
+        let ballPosition = new THREE.Vector3();
+        ballPosition.setFromMatrixPosition(ball_mesh.matrix);
+        camera.lookAt(ballPosition.x,ballPosition.y,ballPosition.z+20);
+    
+    }
+
 
 
     renderer.render(scene, camera);
@@ -650,6 +697,8 @@ function onKeyRelease(event) {
         case 'ArrowUp': 
             cUp = false;
             break;
+        case 'p':
+            switchperspective=!switchperspective;
     }
 }
 

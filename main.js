@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { perspectiveDepthToViewZ } from 'three/webgpu';
+import { perspectiveDepthToViewZ, triNoise3D } from 'three/webgpu';
 
 const scene = new THREE.Scene();
 
@@ -173,9 +173,32 @@ function createCustomObstacles(){
 
 }
 
-createBoxObstacle(0,0,50,false,false,false,10,3,2);
-createBoxObstacle(0,0,70,true,true,false,10,3,2);
-createBoxObstacle(0,0,90,false,true,false,10,3,2);
+//createBoxObstacle(0,0,50,false,false,false,10,3,2);
+//createBoxObstacle(0,0,70,true,true,false,10,3,2);
+//createBoxObstacle(0,0,90,false,true,false,10,3,2);
+//createBoxObstacle(0,0,30,false,false,true,10,3,2);
+
+
+createBoxObstacle(10,0,30,false,false,true,10,3,2);
+createBoxObstacle(-6,0,30,false,false,true,10,3,2);
+
+createBoxObstacle(8,0,40,false,false,true,10,3,2);
+createBoxObstacle(-9,0,40,false,false,true,10,3,2);
+
+createBoxObstacle(10,0,50,false,false,false,6,4,2);
+createBoxObstacle(1,-7,50,false,false,false,6,4,2);
+createBoxObstacle(5,6,50,false,false,false,6,4,2);
+createBoxObstacle(7,-4,50,false,false,false,6,4,2);
+createBoxObstacle(9,9,50,false,false,false,6,4,2);
+createBoxObstacle(-9,9,50,false,false,false,6,4,2);
+createBoxObstacle(8,-9,50,false,false,false,6,4,2);
+createBoxObstacle(-8,-7,50,false,false,false,6,4,2);
+createBoxObstacle(-8,4,50,false,false,false,6,4,2);
+createBoxObstacle(0,0,50,false,false,false,6,4,2);
+
+createBoxObstacle(8,0,60,false,true,false,13,32,2);
+createBoxObstacle(-9,0,60,false,true,false,13,32,2);
+
 
 // const box_ob_geometry = new THREE.BoxGeometry(10, 3, 2);
 // const box_ob_material = new THREE.MeshBasicMaterial({
@@ -263,6 +286,14 @@ function rotationMatrixZ(theta) {
 	);
 }
 
+function scalingMatrix(x,y,z) {
+	return new THREE.Matrix4().set(
+    x, 0, 0, 0,
+    0, y, 0, 0,
+    0, 0, z, 0,
+    0, 0, 0, 1
+	);
+}
 
  
 // const cube1_texture = new THREE.TextureLoader().load('assets/stars.png');
@@ -343,10 +374,10 @@ let c_y = 20;
 let c_z = -20;
 let switchperspective=false;
 let perspectivesangles = [
-    {index : 0, x: -5, y: 5, z: -10},
-    {index: 1, x: 5, y: 5,z: -10},
-    {index : 2, x: -5, y: -5, z: -10},
-    {index : 3, x:  5, y: -5, z: -10},
+    {index : 0, x: -3, y: 3, z: -20},
+    {index: 1, x: 3, y: 3,z: -20},
+    {index : 2, x: -3, y: -3, z: -20},
+    {index : 3, x:  3, y: -3, z: -20},
 ] 
 let currentangles = perspectivesangles[0];
 
@@ -449,6 +480,13 @@ function animate() {
                     obs_translation = translationMatrix(10 - (4 - (clock.getElapsedTime() % 4)) * 10, 0, 0);
                 }
                 model_transform.multiply(obs_translation);
+            }
+            if (obs.isScaling) {
+                let val= Math.abs(2*(clock.getElapsedTime()%4)-4)+1;
+                let obs_scaling = scalingMatrix(val,val,1);
+                 //model_transform.multiply(translationMatrix(obs.x,obs.y,obs.z));
+                 model_transform.multiply(obs_scaling);
+                 //model_transform.multiply(translationMatrix(-obs.x,-obs.y,-obs.z));
             }
 
 

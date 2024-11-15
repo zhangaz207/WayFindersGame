@@ -199,7 +199,8 @@ createBoxObstacle(0,0,50,false,false,false,6,4,2);
 createBoxObstacle(8,0,60,false,true,false,13,32,2);
 createBoxObstacle(-9,0,60,false,true,false,13,32,2);
 
-
+createBoxObstacle(8,0,60,true,true,true,5,3,2);
+createBoxObstacle(-8,0,60,true,true,true,5,3,2);
 // const box_ob_geometry = new THREE.BoxGeometry(10, 3, 2);
 // const box_ob_material = new THREE.MeshBasicMaterial({
 //     color: 0x48ff00

@@ -20,7 +20,6 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 directionalLight.position.set(5, 10, 5).normalize();
 scene.add(directionalLight);
 
-
 // class Texture_Rotate {
 //     vertexShader() {
 //         return `
@@ -141,89 +140,32 @@ scene.add(directionalLight);
 
 // let animation_time = 0.0;
 
-const floorGeometry = new THREE.PlaneGeometry(50, 50);
-const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x7cfc00, side: THREE.DoubleSide });
-const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-floor.rotation.x = Math.PI / 2;
-floor.position.y = -16;
-scene.add(floor);
+
+//Game Properties
+let isAlive = true;
+const clock = new THREE.Clock();
+let blendingFactor = 0.1;
+
+//Player properties
+const speed = 0.1;
+let moveLeft = false;
+let moveRight = false;
+let moveUp = false;
+let moveDown = false;
+let obstructed = false;
 
 
-let obstacles = [];
-
-function createBoxObstacle(x_i, y_i, z_i, isR, isT, isS, length, width, height){
-    const box_ob_geometry = new THREE.BoxGeometry(length, width, height);
-    const box_ob_material = new THREE.MeshBasicMaterial({
-    color: 0x48ff00
-    });
-
-    const box_ob_mesh = new THREE.Mesh(box_ob_geometry, box_ob_material);
-    box_ob_mesh.matrixAutoUpdate = false;
-    scene.add(box_ob_mesh);
-
-    obstacles.push({mesh: box_ob_mesh, x: x_i, y: y_i, z: z_i, isRotating: isR, isTranslating: isT, isScaling: isS});
-}
-
-function createSphereObstacle(){
-    
-}
-
-function createCustomObstacles(){
-
-}
-
-createBoxObstacle(0,0,50,false,false,false,10,3,2);
-createBoxObstacle(0,0,70,true,true,false,10,3,2);
-createBoxObstacle(0,0,90,false,true,false,10,3,2);
-
-// const box_ob_geometry = new THREE.BoxGeometry(10, 3, 2);
-// const box_ob_material = new THREE.MeshBasicMaterial({
-//     color: 0x48ff00
-// });
-
-// const box_ob_mesh1 = new THREE.Mesh(box_ob_geometry, box_ob_material);
-// box_ob_mesh1.matrixAutoUpdate = false;
-// // box_ob_mesh1.position.set(0,0,10);
-// scene.add(box_ob_mesh1);
-
-// const box_ob_mesh2 = new THREE.Mesh(box_ob_geometry, box_ob_material);
-// box_ob_mesh2.matrixAutoUpdate = false;
-// // box_ob_mesh2.position.set(0,0,20);
-// scene.add(box_ob_mesh2);
-
-// const box_ob_mesh3 = new THREE.Mesh(box_ob_geometry, box_ob_material);
-// box_ob_mesh3.matrixAutoUpdate = false;
-// // box_ob_mesh3.position.set(0,0,30);
-// scene.add(box_ob_mesh3);
-
-// const edges = new THREE.EdgesGeometry(ob1_geometry); 
-// const lineMaterial = new THREE.LineBasicMaterial({
-//   color: 0x000000, 
-//   linewidth: 2,
-//   depthWrite: false
-// });
-
-// const edgeLines = new THREE.LineSegments(edges, lineMaterial);
-// edgeLines.position.copy(ob1_mesh.position);
-// scene.add(edgeLines);
-
-// let boundingBoxHelper = new THREE.Box3Helper(new THREE.Box3(), 0xffff00); // Create Box3 helper with a yellow color
-// scene.add(boundingBoxHelper);
-
-const ball_geom = new THREE.SphereGeometry(1, 1, 1);
-const ball_material = new THREE.MeshBasicMaterial({
-    color: 0xff0000
-});
-
-const ball_mesh = new THREE.Mesh(ball_geom, ball_material);
-scene.add(ball_mesh);
+// Camera properties
+const cSpeed = 0.5;
+let cLeft = false;
+let cRight = false;
+let cUp = false;
+let cDown = false;
+let c_x = -10;
+let c_y = 20;
+let c_z = -20;
 
 
-// let obstacles = [
-//     {mesh: box_ob_mesh1, x: 0, y: 0, z: 10, isRotating: false},
-//     {mesh: box_ob_mesh2, x: 0, y: 0, z: 20, isRotating: true},
-//     {mesh: box_ob_mesh3, x: 0, y: 0, z: 30, isTranslating: true}
-// ];
 
 // TRANSFORMATIONS
 
@@ -261,6 +203,122 @@ function rotationMatrixZ(theta) {
     0, 0, 0, 1
 	);
 }
+
+function oscillation(period, time, speed, adjust){
+    return Math.abs(speed * (time % period) - speed*2) + adjust;
+}
+
+// function regular(time, speed){
+//     return time * speed;
+// }
+
+
+const floorGeometry = new THREE.PlaneGeometry(50, 50);
+const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x7cfc00, side: THREE.DoubleSide });
+const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+floor.rotation.x = Math.PI / 2;
+floor.position.y = -16;
+scene.add(floor);
+
+let obstacles = [];
+
+function createBoxObstacle(x_i, y_i, z_i, length, width, height, transforms){
+    const box_ob_geometry = new THREE.BoxGeometry(length, height, width);
+    const box_ob_material = new THREE.MeshBasicMaterial({
+    color: 0x48ff00
+    });
+    const box_ob_mesh = new THREE.Mesh(box_ob_geometry, box_ob_material);
+    box_ob_mesh.matrixAutoUpdate = false;
+    scene.add(box_ob_mesh);
+
+    obstacles.push({
+        mesh: box_ob_mesh, 
+        x: x_i, 
+        y: y_i, 
+        z: z_i, 
+        tranformations: transforms
+    });
+}
+
+function createSphereObstacle(){
+    
+}
+
+function createCustomObstacles(){
+
+}
+
+const translation = 1;
+const oscillating_translation = 2;
+const scaling = 3;
+const rotationX = 4;
+const rotationY = 5;
+const rotationZ = 6;
+
+function addTranslation(speedX, speedY, speedZ){
+    return {tr_type: translation, speedX, speedY, speedZ};
+}
+function addOscillatingTranslation(period, speedX, speedY, speedZ, adjust){
+    return {tr_type: oscillating_translation, period, speedX, speedY, speedZ, adjust};
+}
+function addRotationX(speed){
+    return {tr_type: rotationX, speed};
+}
+function addRotationY(speed){
+    return {tr_type: rotationY, speed};
+}
+function addRotationZ(speed){
+    return {tr_type: rotationZ, speed};
+}
+function addScaling(period, speed, adjust){
+    return {tr_type: scaling, period, speed, adjust};
+}
+
+createBoxObstacle(0,0,50,10,3,2,[]);
+createBoxObstacle(0,0,70,10,3,2,[addOscillatingTranslation(4, 10, 0, 0, -10)]);
+createBoxObstacle(0,0,90,10,3,2,[addRotationZ(5)]);
+
+// const box_ob_geometry = new THREE.BoxGeometry(10, 3, 2);
+// const box_ob_material = new THREE.MeshBasicMaterial({
+//     color: 0x48ff00
+// });
+
+// const box_ob_mesh1 = new THREE.Mesh(box_ob_geometry, box_ob_material);
+// box_ob_mesh1.matrixAutoUpdate = false;
+// // box_ob_mesh1.position.set(0,0,10);
+// scene.add(box_ob_mesh1);
+
+// const box_ob_mesh2 = new THREE.Mesh(box_ob_geometry, box_ob_material);
+// box_ob_mesh2.matrixAutoUpdate = false;
+// // box_ob_mesh2.position.set(0,0,20);
+// scene.add(box_ob_mesh2);
+
+// const box_ob_mesh3 = new THREE.Mesh(box_ob_geometry, box_ob_material);
+// box_ob_mesh3.matrixAutoUpdate = false;
+// // box_ob_mesh3.position.set(0,0,30);
+// scene.add(box_ob_mesh3);
+
+// const edges = new THREE.EdgesGeometry(ob1_geometry); 
+// const lineMaterial = new THREE.LineBasicMaterial({
+//   color: 0x000000, 
+//   linewidth: 2,
+//   depthWrite: false
+// });
+
+// const edgeLines = new THREE.LineSegments(edges, lineMaterial);
+// edgeLines.position.copy(ob1_mesh.position);
+// scene.add(edgeLines);
+
+// let boundingBoxHelper = new THREE.Box3Helper(new THREE.Box3(), 0xffff00); // Create Box3 helper with a yellow color
+// scene.add(boundingBoxHelper);
+
+const ball_geom = new THREE.SphereGeometry(1, 64, 64);
+const ball_material = new THREE.MeshBasicMaterial({
+    color: 0xff0000
+});
+
+const ball_mesh = new THREE.Mesh(ball_geom, ball_material);
+scene.add(ball_mesh);
 
 
  
@@ -316,31 +374,6 @@ function rotationMatrixZ(theta) {
 // scene.add(cube2_mesh);
 
 
-//Game Properties
-let isAlive = true;
-const clock = new THREE.Clock();
-let blendingFactor = 0.1;
-
-
-//Player properties
-const speed = 0.1;
-let moveLeft = false;
-let moveRight = false;
-let moveUp = false;
-let moveDown = false;
-let obstructed = false;
-
-
-// Camera properties
-const cSpeed = 0.5;
-let cLeft = false;
-let cRight = false;
-let cUp = false;
-let cDown = false;
-let c_x = -10;
-let c_y = 20;
-let c_z = -20;
-
 
 // HELPER FUNCTIONS
 
@@ -385,8 +418,9 @@ function checkCollision(obs_bounding, ball_bounding) {
 
 function animate() {
     controls.update();
-    let delta = clock.getDelta();
+    // let delta = clock.getDelta();
     // animation_time += delta;
+    let game_time = clock.getElapsedTime();
    
     if (!obstructed){
         if (moveLeft) {
@@ -416,32 +450,60 @@ function animate() {
     obstacles.forEach(function (obs,index){
 
         if (!obstructed){
-            //constant speed of obstacles moving towards player 
             
-            let obs_incoming = translationMatrix(obs.x,obs.y, obs.z-clock.getElapsedTime() * 5);
-
             let model_transform = new THREE.Matrix4();
-            if (obs.isRotating){
-                console.log(obs.mesh.rotation)
-                let obs_rotation = rotationMatrixZ(clock.getElapsedTime());
-                model_transform.multiply(obs_rotation);
+            
+            // if (obs.isTranslating){
+                // let translation = Math.abs(10*(game_time%4) - 20) - 10;
+                // let obs_translation = translationMatrix(translation, 0,0);
 
-            }
-            if (obs.isTranslating){
-                let obs_translation;
                 
-                //use oscilating function for matrix
-                if (clock.getElapsedTime() % 4 <= 2){
-                    obs_translation = translationMatrix(10 - (clock.getElapsedTime() % 4) * 10, 0, 0);
+                // use oscilating function for matrix
+                // if (clock.getElapsedTime() % 4 <= 2){
+                //     obs_translation = translationMatrix(10 - (clock.getElapsedTime() % 4) * 10, 0, 0);
                     
-                }
-                else {
-                    obs_translation = translationMatrix(10 - (4 - (clock.getElapsedTime() % 4)) * 10, 0, 0);
-                }
-                model_transform.multiply(obs_translation);
-            }
+                // }
+                // else {
+                //     obs_translation = translationMatrix(10 - (4 - (clock.getElapsedTime() % 4)) * 10, 0, 0);
 
+                // model_transform.multiply(obs_translation);
+             //}
 
+            // if (obs.isRotating){
+            //     let obs_rotation = rotationMatrixZ(clock.getElapsedTime());
+            //     model_transform.multiply(obs_rotation);
+
+            // }
+
+            
+            obs.tranformations.forEach(function (t, index){
+                let matrix;
+                switch(t.tr_type) {
+                    case translation:
+                        matrix = translationMatrix(t.speed * game_time);
+                        break;
+                    case oscillating_translation:
+                        matrix = translationMatrix(oscillation(t.period, game_time, t.speedX, t.speedX ? t.adjust : 0), oscillation(t.period, game_time, t.speedY, t.speedY ? t.adjust : 0), oscillation(t.period, game_time, t.speedZ, t.speedZ ? t.adjust : 0));
+                        break;
+                    case rotationX:
+                        matrix = rotationMatrixX(t.speed * game_time);
+                        break;
+                    case rotationY: 
+                        matrix = rotationMatrixY(t.speed * game_time);
+                        break;
+                    case rotationZ: 
+                        matrix = rotationMatrixZ(t.speed * game_time);
+                        break;
+                    case scaling:
+                        matrix = scaling(oscillation(t.period, game_time, t.speed, t.adjust), oscillation(t.period, game_time, t.speed, t.adjust ), oscillation(t.period, game_time, t.speed, t.adjust));
+                        break;
+                }
+                
+                model_transform.multiply(matrix);
+            });
+
+             //constant speed of obstacles moving towards player
+            const obs_incoming = translationMatrix(obs.x,obs.y, obs.z - game_time * 5);
             model_transform.multiply(obs_incoming);
             
             obs.mesh.matrix.copy(model_transform);

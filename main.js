@@ -373,6 +373,7 @@ function createBoxObstacle(x_i, y_i, z_i, length, width, height, transforms){
     });
     const box_ob_mesh = new THREE.Mesh(box_ob_geometry, box_ob_material);
     box_ob_mesh.matrixAutoUpdate = false;
+    box_ob_mesh.visible=true;
     scene.add(box_ob_mesh);
 
     obstacles.push({
@@ -605,7 +606,13 @@ function animate() {
     // const ball_bounding = new THREE.Sphere(ball_mesh.position, 0.5);
 
     obstacles.forEach(function (obs,index){
+        let currentdepth = new THREE.Vector4();
+        currentdepth.setFromMatrixPosition(obs.mesh.matrixWorld);
+        console.log('currentdepth',currentdepth.z);
 
+        if (currentdepth.z < -3) {
+            obs.mesh.visible =false;
+        }
         if (!obstructed){
             
             let model_transform = new THREE.Matrix4();

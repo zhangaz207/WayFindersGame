@@ -21,123 +21,123 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
 directionalLight.position.set(5, 10, -5).normalize();
 scene.add(directionalLight);
 
-// class Texture_Rotate {
-//     vertexShader() {
-//         return `
-//         uniform sampler2D uTexture;
-//         varying vec2 vUv;
-//         varying vec3 vPosition;
-//         void main() {
-//             vUv = uv;
-//             vPosition = position;
-//             gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
-//         }
-//         `;
-//     }
+class Texture_Rotate {
+    vertexShader() {
+        return `
+        uniform sampler2D uTexture;
+        varying vec2 vUv;
+        varying vec3 vPosition;
+        void main() {
+            vUv = uv;
+            vPosition = position;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+        }
+        `;
+    }
 
-//     fragmentShader() {
-//         return `
-//         uniform sampler2D uTexture;
-//         uniform float animation_time;
-//         varying vec2 vUv;
-//         varying vec3 vPosition;
-//         void main() {    
-//              // TODO: 2.c Rotate the texture map around the center of each face at a rate of 8 rpm.
-//             const float PI = 3.14159265359;
-//             float angle = -4.0*PI/15.0 * animation_time;
-//             vec2 center = vec2(0.5, 0.5);
-//             vec2 vUv_t = vUv - center;
-//             vec2 vUv_r;
-//             vUv_r.x = vUv_t.x * cos(angle) - vUv_t.y * sin(angle);
-//             vUv_r.y = vUv_t.x * sin(angle) + vUv_t.y * cos(angle);
-//             vec2 vUv_f = vUv_r + center;
-//             vUv_f.x = mod(vUv_f.x, 1.0);
-//             vUv_f.y = mod(vUv_f.y, 1.0);
+    fragmentShader() {
+        return `
+        uniform sampler2D uTexture;
+        uniform float animation_time;
+        varying vec2 vUv;
+        varying vec3 vPosition;
+        void main() {    
+             // TODO: 2.c Rotate the texture map around the center of each face at a rate of 8 rpm.
+            const float PI = 3.14159265359;
+            float angle = -4.0*PI/15.0 * animation_time;
+            vec2 center = vec2(0.5, 0.5);
+            vec2 vUv_t = vUv - center;
+            vec2 vUv_r;
+            vUv_r.x = vUv_t.x * cos(angle) - vUv_t.y * sin(angle);
+            vUv_r.y = vUv_t.x * sin(angle) + vUv_t.y * cos(angle);
+            vec2 vUv_f = vUv_r + center;
+            vUv_f.x = mod(vUv_f.x, 1.0);
+            vUv_f.y = mod(vUv_f.y, 1.0);
 
-//             // TODO: 1.b Load the texture color from the texture map
-//             // Hint: Use texture2D function to get the color of the texture at the current UV coordinates
-//             vec4 texColor = texture2D(uTexture, vUv_f);
+            // TODO: 1.b Load the texture color from the texture map
+            // Hint: Use texture2D function to get the color of the texture at the current UV coordinates
+            vec4 texColor = texture2D(uTexture, vUv_f);
             
-//             // TODO: 2.d add the outline of a black square in the center of each texture that moves with the texture
-//             // Hint: Tell whether the current pixel is within the black square or not using the UV coordinates
-//             //       If the pixel is within the black square, set the tex_color to vec4(0.0, 0.0, 0.0, 1.0)
+            // TODO: 2.d add the outline of a black square in the center of each texture that moves with the texture
+            // Hint: Tell whether the current pixel is within the black square or not using the UV coordinates
+            //       If the pixel is within the black square, set the tex_color to vec4(0.0, 0.0, 0.0, 1.0)
 
-//             if (vUv_f.x > 0.15 && vUv_f.x < 0.25 && vUv_f.y > 0.15 && vUv_f.y < 0.85){
-//                 texColor = vec4(0, 0, 0, 1.0);
-//             }
-//             if (vUv_f.x > 0.75 && vUv_f.x < 0.85 && vUv_f.y > 0.15 && vUv_f.y < 0.85){
-//                 texColor = vec4(0, 0, 0, 1.0);
-//             }
-//             if (vUv_f.y > 0.15 && vUv_f.y < 0.25 && vUv_f.x > 0.15 && vUv_f.x < 0.85){
-//                 texColor = vec4(0, 0, 0, 1.0);
-//             }
-//             if (vUv_f.y > 0.75 && vUv_f.y < 0.85 && vUv_f.x > 0.15 && vUv_f.x < 0.85){
-//                 texColor = vec4(0, 0, 0, 1.0);
-//             }
+            // if (vUv_f.x > 0.15 && vUv_f.x < 0.25 && vUv_f.y > 0.15 && vUv_f.y < 0.85){
+            //     texColor = vec4(0, 0, 0, 1.0);
+            // }
+            // if (vUv_f.x > 0.75 && vUv_f.x < 0.85 && vUv_f.y > 0.15 && vUv_f.y < 0.85){
+            //     texColor = vec4(0, 0, 0, 1.0);
+            // }
+            // if (vUv_f.y > 0.15 && vUv_f.y < 0.25 && vUv_f.x > 0.15 && vUv_f.x < 0.85){
+            //     texColor = vec4(0, 0, 0, 1.0);
+            // }
+            // if (vUv_f.y > 0.75 && vUv_f.y < 0.85 && vUv_f.x > 0.15 && vUv_f.x < 0.85){
+            //     texColor = vec4(0, 0, 0, 1.0);
+            // }
 
-//             gl_FragColor = texColor;
+            gl_FragColor = texColor;
             
-//         }
-//         `;
-//     }
-// }
+        }
+        `;
+    }
+}
 
 
-// class Texture_Scroll_X {
-//     vertexShader() {
-//         return `
-//         uniform sampler2D uTexture;
-//         varying vec2 vUv;
-//         varying vec3 vPosition;
-//         void main() {
-//             vUv = uv;
-//             vPosition = position;
-//             gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
-//         }
-//         `;
-//     }
+class Texture_Scroll_X {
+    vertexShader() {
+        return `
+        uniform sampler2D uTexture;
+        varying vec2 vUv;
+        varying vec3 vPosition;
+        void main() {
+            vUv = uv;
+            vPosition = position;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+        }
+        `;
+    }
 
-//     fragmentShader() {
-//         return `
-//         uniform sampler2D uTexture;
-//         uniform float animation_time;
-//         varying vec2 vUv;
-//         varying vec3 vPosition;
-//         void main() {
-//             // TODO: 2.a Shrink the texuture by 50% so that the texture is repeated twice in each direction
-//             vec2 vUv_f = 2.0 * vUv;
+    fragmentShader() {
+        return `
+        uniform sampler2D uTexture;
+        uniform float animation_time;
+        varying vec2 vUv;
+        varying vec3 vPosition;
+        void main() {
+            // TODO: 2.a Shrink the texuture by 50% so that the texture is repeated twice in each direction
+            vec2 vUv_f = 2.0 * vUv;
 
-//             // TODO: 2.b Translate the texture varying the s texture coordinate by 4 texture units per second, 
-//             vUv_f.x = vUv_f.x - animation_time * 4.0;
-//             vUv_f.x = mod(vUv_f.x, 1.0);
-//             vUv_f.y = mod(vUv_f.y, 1.0);
-//             // TODO: 1.b Load the texture color from the texture map
-//             // Hint: Use texture2D function to get the color of the texture at the current UV coordinates
-//             vec4 texColor = texture2D(uTexture, vUv_f);
-            
-
-//             // TODO: 2.d add the outline of a black square in the center of each texture that moves with the texture
-//             // Hint: Tell whether the current pixel is within the black square or not using the UV coordinates
-//             //       If the pixel is within the black square, set the tex_color to vec4(0.0, 0.0, 0.0, 1.0)
-//             if (vUv_f.x > 0.15 && vUv_f.x < 0.25 && vUv_f.y > 0.15 && vUv_f.y < 0.85){
-//                 texColor = vec4(0, 0, 0, 1.0);
-//             }
-//             if (vUv_f.x > 0.75 && vUv_f.x < 0.85 && vUv_f.y > 0.15 && vUv_f.y < 0.85){
-//                 texColor = vec4(0, 0, 0, 1.0);
-//             }
-//             if (vUv_f.y > 0.15 && vUv_f.y < 0.25 && vUv_f.x > 0.15 && vUv_f.x < 0.85){
-//                 texColor = vec4(0, 0, 0, 1.0);
-//             }
-//             if (vUv_f.y > 0.75 && vUv_f.y < 0.85 && vUv_f.x > 0.15 && vUv_f.x < 0.85){
-//                 texColor = vec4(0, 0, 0, 1.0);
-//             }
+            // TODO: 2.b Translate the texture varying the s texture coordinate by 4 texture units per second, 
+            vUv_f.x = vUv_f.x - animation_time * 4.0;
+            vUv_f.x = mod(vUv_f.x, 1.0);
+            vUv_f.y = mod(vUv_f.y, 1.0);
+            // TODO: 1.b Load the texture color from the texture map
+            // Hint: Use texture2D function to get the color of the texture at the current UV coordinates
+            vec4 texColor = texture2D(uTexture, vUv_f);
             
 
-//             gl_FragColor = texColor;
-//         }
-//         `;
-//     }
-// }
+            // TODO: 2.d add the outline of a black square in the center of each texture that moves with the texture
+            // Hint: Tell whether the current pixel is within the black square or not using the UV coordinates
+            //       If the pixel is within the black square, set the tex_color to vec4(0.0, 0.0, 0.0, 1.0)
+            // if (vUv_f.x > 0.15 && vUv_f.x < 0.25 && vUv_f.y > 0.15 && vUv_f.y < 0.85){
+            //     texColor = vec4(0, 0, 0, 1.0);
+            // }
+            // if (vUv_f.x > 0.75 && vUv_f.x < 0.85 && vUv_f.y > 0.15 && vUv_f.y < 0.85){
+            //     texColor = vec4(0, 0, 0, 1.0);
+            // }
+            // if (vUv_f.y > 0.15 && vUv_f.y < 0.25 && vUv_f.x > 0.15 && vUv_f.x < 0.85){
+            //     texColor = vec4(0, 0, 0, 1.0);
+            // }
+            // if (vUv_f.y > 0.75 && vUv_f.y < 0.85 && vUv_f.x > 0.15 && vUv_f.x < 0.85){
+            //     texColor = vec4(0, 0, 0, 1.0);
+            // }
+            
+
+            gl_FragColor = texColor;
+        }
+        `;
+    }
+}
 
 // let animation_time = 0.0;
 
@@ -369,9 +369,25 @@ function createBoxObstacle(x_i, y_i, z_i, length, width, height, transforms){
 
     box_ob_geometry.userData.obb = new OBB();
     box_ob_geometry.userData.obb.halfSize.copy(size).multiplyScalar( 0.5 );
-    const box_ob_material = new THREE.MeshPhongMaterial({
-    color: 0x48ff00, flatShading : true
+    // const box_ob_material = new THREE.MeshPhongMaterial({
+    // color: 0x48ff00, flatShading : true
+    // });
+    
+    const box_ob_texture = new THREE.TextureLoader().load('assets/spacestuff.jpg');
+    box_ob_texture.minFilter = THREE.LinearMipMapLinearFilter;
+
+
+    const box_uniforms = {
+        uTexture: { value: box_ob_texture },
+        //animation_time: { value: animation_time }
+    };
+    const box_ob_shader = new Texture_Rotate();
+    const box_ob_material = new THREE.ShaderMaterial({
+        uniforms: box_uniforms,
+        vertexShader: box_ob_shader.vertexShader(),
+        fragmentShader: box_ob_shader.fragmentShader(),
     });
+
     const box_ob_mesh = new THREE.Mesh(box_ob_geometry, box_ob_material);
     box_ob_mesh.matrixAutoUpdate = false;
     box_ob_mesh.visible=true;

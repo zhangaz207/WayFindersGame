@@ -2,12 +2,33 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<title>Assignment1</title>
+		<title> The Wayfinders </title>
 		<style>
 			body { margin: 0; }
+			#homeScreen {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				text-align: center;
+        	}
+        	button {
+				font-size: 24px;
+				padding: 10px 20px;
+				margin: 10px;
+				cursor: pointer;
+        	}
 		</style>
-	</head>
+	</head> 
 	<body>
+		<div id="homeScreen">
+			<h1>The Wayfinders</h1>
+			<button id="level1">Level 1</button>
+			<button id="level2">Level 2</button>
+			<button id="level3">Level 3</button>
+		</div>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
 		<script type="module" src="/main.js"></script>
 	</body>
 </html>

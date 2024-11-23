@@ -106,15 +106,18 @@ function init() {
     controls = new OrbitControls(camera, renderer.domElement);
     controls.target.set(0, 0, 0);
 
-    const light = new THREE.AmbientLight(0x404040); // Ambient light
-    scene.add(light);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
+    //const light = new THREE.AmbientLight(0x404040); // Ambient light
+    //scene.add(light);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 10);
     directionalLight.position.set(0,0,-5);
     //directionalLight.position.set(5, 10, -5).normalize();
     scene.add(directionalLight);
+    const balllight = new THREE.Light(0xffffff,5);
+    balllight.position.set(0,0,75);
+    scene.add(balllight);
 
     document.getElementById('level1').addEventListener('click', () => loadLevel(1));
-    // document.getElementById('level2').addEventListener('click', () => loadLevel(2));
+    document.getElementById('level2').addEventListener('click', () => loadLevel(2));
     // document.getElementById('level3').addEventListener('click', () => loadLevel(3));
 
 }
@@ -133,10 +136,10 @@ function loadLevel(level) {
         case 1:
             import('./level1.js').then(level1 => obstacles = level1.setUpLevel(scene, camera));
             break;
-        // case 2:
-        //     import('./level2.js').then(level2 => level2.setupLevel(scene, camera));
-        //     break;
-        // case 3:
+        case 2:
+            import('./level2.js').then(level2 =>  obstacles = level2.setUpLevel(scene, camera));
+            break;
+        //case 3:
         //     import('./levels/level3.js').then(level3 => level3.setupLevel(scene, camera));
         //     break;
     }
@@ -235,68 +238,68 @@ function animate() {
         }   
     });
 
-    let cameraTransform = new THREE.Matrix4();
-    cameraTransform.copy(player.matrix);
+    // let cameraTransform = new THREE.Matrix4();
+    // cameraTransform.copy(player.matrix);
 
-    if (!switchperspective) {
-        if (cLeft) {
-            if (c_x < 30)
-                c_x += cSpeed;
-        }
-        if (cRight) {
-            if (c_x > -60)
-                c_x -= cSpeed;
-        }
-        if (cUp) {
-            if (c_z < 60)
-                c_z += cSpeed;
-        }
-        if (cDown) {
-            if (c_z > -60)
-                c_z -= cSpeed;
-        }
+    // if (!switchperspective) {
+    //     if (cLeft) {
+    //         if (c_x < 30)
+    //             c_x += cSpeed;
+    //     }
+    //     if (cRight) {
+    //         if (c_x > -60)
+    //             c_x -= cSpeed;
+    //     }
+    //     if (cUp) {
+    //         if (c_z < 60)
+    //             c_z += cSpeed;
+    //     }
+    //     if (cDown) {
+    //         if (c_z > -60)
+    //             c_z -= cSpeed;
+    //     }
     
-        let offset = translationMatrix(c_x, c_y, c_z);
-        cameraTransform.multiply(offset);
-        let cameraPosition = new THREE.Vector3();
-        cameraPosition.setFromMatrixPosition(cameraTransform);
-        camera.position.lerp(cameraPosition, blendingFactor);
-        let ballPosition = new THREE.Vector3();
-        ballPosition.setFromMatrixPosition(player.matrix);
-        camera.lookAt(ballPosition);
-    }
-    else {
-        if (cLeft) {
-            if (currentangles.index == 0 || currentangles.index == 2) {
-                currentangles=perspectivesangles[currentangles.index+1 %4];
-            }
-        }
-        if (cRight) {
-            if (currentangles.index == 1 || currentangles.index == 3) {
-                currentangles=perspectivesangles[currentangles.index-1 %4];
-            }
-        }
-        if (cUp) {
-            if (currentangles.index == 2 || currentangles.index == 3) {
-                currentangles=perspectivesangles[currentangles.index-2 %4];
-            }
-        }
-        if (cDown) {
-            if (currentangles.index == 0 || currentangles.index == 1) {
-                currentangles=perspectivesangles[currentangles.index+2 %4];
-            } 
-        }
+    //     let offset = translationMatrix(c_x, c_y, c_z);
+    //     cameraTransform.multiply(offset);
+    //     let cameraPosition = new THREE.Vector3();
+    //     cameraPosition.setFromMatrixPosition(cameraTransform);
+    //     camera.position.lerp(cameraPosition, blendingFactor);
+    //     let ballPosition = new THREE.Vector3();
+    //     ballPosition.setFromMatrixPosition(player.matrix);
+    //     camera.lookAt(ballPosition);
+    // }
+    // else {
+    //     if (cLeft) {
+    //         if (currentangles.index == 0 || currentangles.index == 2) {
+    //             currentangles=perspectivesangles[currentangles.index+1 %4];
+    //         }
+    //     }
+    //     if (cRight) {
+    //         if (currentangles.index == 1 || currentangles.index == 3) {
+    //             currentangles=perspectivesangles[currentangles.index-1 %4];
+    //         }
+    //     }
+    //     if (cUp) {
+    //         if (currentangles.index == 2 || currentangles.index == 3) {
+    //             currentangles=perspectivesangles[currentangles.index-2 %4];
+    //         }
+    //     }
+    //     if (cDown) {
+    //         if (currentangles.index == 0 || currentangles.index == 1) {
+    //             currentangles=perspectivesangles[currentangles.index+2 %4];
+    //         } 
+    //     }
 
-        let offset = translationMatrix(currentangles.x, currentangles.y, currentangles.z);
-        cameraTransform.multiply(offset);
-        let cameraPosition = new THREE.Vector3();
-        cameraPosition.setFromMatrixPosition(cameraTransform);
-        camera.position.lerp(cameraPosition, blendingFactor);
-        let ballPosition = new THREE.Vector3();
-        ballPosition.setFromMatrixPosition(player.matrix);
-        camera.lookAt(ballPosition.x,ballPosition.y,ballPosition.z+20);
+    //     let offset = translationMatrix(currentangles.x, currentangles.y, currentangles.z);
+    //     cameraTransform.multiply(offset);
+    //     let cameraPosition = new THREE.Vector3();
+    //     cameraPosition.setFromMatrixPosition(cameraTransform);
+    //     camera.position.lerp(cameraPosition, blendingFactor);
+    //     let ballPosition = new THREE.Vector3();
+    //     ballPosition.setFromMatrixPosition(player.matrix);
+    //     camera.lookAt(ballPosition.x,ballPosition.y,ballPosition.z+20);
     
-    }
+    //}
 
     renderer.render(scene, camera);
 

@@ -18,7 +18,8 @@ controls.target.set(0, 0, 0);
 const light = new THREE.AmbientLight(0x404040); // Ambient light
 scene.add(light);
 const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
-directionalLight.position.set(5, 10, -5).normalize();
+directionalLight.position.set(0,0,-5);
+//directionalLight.position.set(5, 10, -5).normalize();
 scene.add(directionalLight);
 
 class Texture_Rotate {
@@ -343,14 +344,51 @@ function createPhongMaterial(materialProperties) {
 }
 
 
+const walls_texture = new THREE.TextureLoader().load('assets/spacestuff.jpg');
+walls_texture.minFilter = THREE.LinearMipMapLinearFilter;
 
+const walls_uniforms = {
+    uTexture: { value: walls_texture },
+    //animation_time: { value: animation_time }
+};
+const walls_shader = new Texture_Rotate();
+const walls_material = new THREE.ShaderMaterial({
+    uniforms: walls_uniforms,
+    vertexShader: walls_shader.vertexShader(),
+    fragmentShader: walls_shader.fragmentShader(),
+});
 
-const floorGeometry = new THREE.PlaneGeometry(50, 50);
-const floorMaterial = new THREE.MeshPhongMaterial({ color: 0xc0c0c0, side: THREE.DoubleSide });
-const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-floor.rotation.x = Math.PI / 2;
-floor.position.y = -16;
+const floorGeometry = new THREE.PlaneGeometry(150, 150);
+const floor = new THREE.Mesh(floorGeometry, walls_material);
+floor.rotation.x = 3*Math.PI / 2;
+floor.position.y = -32;
 scene.add(floor);
+const ceiling = new THREE.Mesh(floorGeometry, walls_material);
+ceiling.rotation.x = Math.PI / 2;
+ceiling.position.y = 32;
+scene.add(ceiling);
+
+
+const left = new THREE.Mesh(floorGeometry, walls_material);
+left.rotation.y = Math.PI / 2;
+left.position.x = -32;
+scene.add(left);
+const right = new THREE.Mesh(floorGeometry, walls_material);
+right.rotation.y = 3* Math.PI / 2;
+right.position.x = 32;
+scene.add(right);
+
+const front = new THREE.Mesh(floorGeometry, walls_material);
+front.position.z = 80;
+scene.add(front);
+const back = new THREE.Mesh(floorGeometry, walls_material);
+back.position.z = -30;
+scene.add(back);
+
+
+
+
+
 
 const ball_geom = new THREE.SphereGeometry(1, 64, 64);
 const ball_material = new THREE.MeshPhongMaterial({
@@ -373,7 +411,7 @@ function createBoxObstacle(x_i, y_i, z_i, length, width, height, transforms){
     // color: 0x48ff00, flatShading : true
     // });
     
-    const box_ob_texture = new THREE.TextureLoader().load('assets/spacestuff.jpg');
+    const box_ob_texture = new THREE.TextureLoader().load('assets/pink_bow.jpeg');
     box_ob_texture.minFilter = THREE.LinearMipMapLinearFilter;
 
 

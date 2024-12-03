@@ -230,7 +230,6 @@ function animate() {
     //     player_bounding.applyMatrix4(player.matrixWorld);
     // }
 
-
     obstacles.forEach(function (obs,index){
         let currentdepth = new THREE.Vector4();
         currentdepth.setFromMatrixPosition(obs.mesh.matrixWorld);
@@ -254,13 +253,15 @@ function animate() {
             let model_transform = new THREE.Matrix4();
             
             obs.tranformations.forEach(function (t, index){
+
                 let matrix;
                 switch(t.tr_type) {
                     case translation:
-                        matrix = translationMatrix(t.speedX * game_time,t.speedY*game_time, t.speedZ*game_time); //something wrong
+                        matrix = translationMatrix(t.speedX * game_time,t.speedY*game_time, t.speedZ*game_time);
                         break;
                     case oscillating_translation:
                         matrix = translationMatrix(oscillation(t.period, game_time, t.speedX, t.speedX ? t.adjust : 0), oscillation(t.period, game_time, t.speedY, t.speedY ? t.adjust : 0), oscillation(t.period, game_time, t.speedZ, t.speedZ ? t.adjust : 0));
+
                         break;
                     case rotationX:
                         matrix = rotationMatrixX(t.speed * game_time);
@@ -275,7 +276,7 @@ function animate() {
                         matrix = scalingMatrix(oscillation(t.period, game_time, t.speed, t.adjust), oscillation(t.period, game_time, t.speed, t.adjust), 1);
                         break;
                 }
-                
+    
                 model_transform.multiply(matrix);
             });
 

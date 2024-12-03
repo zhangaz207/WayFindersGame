@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OBB } from 'three/examples/jsm/Addons.js';
 
+let player;
 let obstacles = [];
 
 export function setUpLevel(scene) {
@@ -244,48 +245,20 @@ export function setUpLevel(scene) {
         });
     }
     
-    
-    const walls_texture = new THREE.TextureLoader().load('assets/spacestuff.jpg');
-    walls_texture.minFilter = THREE.LinearMipMapLinearFilter;
-    
-    const walls_uniforms = {
-        uTexture: { value: walls_texture },
-        //animation_time: { value: animation_time }
-    };
-    const walls_shader = new Texture_Rotate();
-    const walls_material = new THREE.ShaderMaterial({
-        uniforms: walls_uniforms,
-        vertexShader: walls_shader.vertexShader(),
-        fragmentShader: walls_shader.fragmentShader(),
+    const player_geom = new THREE.SphereGeometry(1, 64, 64);
+
+    const player_material = new THREE.MeshPhongMaterial({
+        color: 0xff0000
     });
     
-    const floorGeometry = new THREE.PlaneGeometry(150, 150);
-    const floor = new THREE.Mesh(floorGeometry, walls_material);
-    floor.rotation.x = 3*Math.PI / 2;
-    floor.position.y = -32;
-    scene.add(floor);
-    const ceiling = new THREE.Mesh(floorGeometry, walls_material);
-    ceiling.rotation.x = Math.PI / 2;
-    ceiling.position.y = 32;
-    scene.add(ceiling);
-    
-    
-    const left = new THREE.Mesh(floorGeometry, walls_material);
-    left.rotation.y = Math.PI / 2;
-    left.position.x = -32;
-    scene.add(left);
-    const right = new THREE.Mesh(floorGeometry, walls_material);
-    right.rotation.y = 3* Math.PI / 2;
-    right.position.x = 32;
-    scene.add(right);
-    
-    const front = new THREE.Mesh(floorGeometry, walls_material);
-    front.position.z = 80;
-    scene.add(front);
-    const back = new THREE.Mesh(floorGeometry, walls_material);
-    back.position.z = -30;
-    scene.add(back);
+// const newtexturemat = new THREE.TextureLoader().load('assets/glass.png');
+     // const player_material = new THREE.ShaderMaterial({
+    //     map : newtexturemat,
+    // });
 
+    player = new THREE.Mesh(player_geom, player_material);
+    player.castShadow =true;
+    scene.add(player);
 
     //BOX MATERIALS
 
@@ -391,18 +364,6 @@ export function setUpLevel(scene) {
     createBoxObstacle(8,0,75,5,3,2,[addRotationZ(1), addOscillatingTranslation(4, 10, 0, 0, -10), addScaling(4, 2, 1)], box_ob_material_texture);
     createBoxObstacle(-8,0,75,5,3,2,[addRotationZ(1), addOscillatingTranslation(4, 10, 0, 0, -10), addScaling(4, 2, 1)], box_ob_material_phong);
     
-    return obstacles; 
+    return {player, obstacles}; 
 
-    // const edges = new THREE.EdgesGeometry(ob1_geometry); 
-    // const lineMaterial = new THREE.LineBasicMaterial({
-    //   color: 0x000000, 
-    //   linewidth: 2,
-    //   depthWrite: false
-    // });
-    
-    // const edgeLines = new THREE.LineSegments(edges, lineMaterial);
-    // edgeLines.position.copy(ob1_mesh.position);
-    // scene.add(edgeLines);
-
-    
 }    

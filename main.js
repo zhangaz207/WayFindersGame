@@ -1,14 +1,14 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { cubeTexture, DirectionalLight } from 'three/webgpu';
 import { OBB } from 'three/examples/jsm/Addons.js';
 
 //Game Properties
 let currentLevel = 0;
-let scene, camera, renderer, controls, player, directionalLight, ball_geom;
+let scene, camera, renderer, controls, directionalLight;
 const clock = new THREE.Clock();
 let blendingFactor = 0.1;
-let obstacles = [];
+let obstacles;
+let player;
 
 //Player properties
 const speed = 0.1;
@@ -17,17 +17,6 @@ let moveRight = false;
 let moveUp = false;
 let moveDown = false;
 let obstructed = false;
-
-const ball_geom = new THREE.SphereGeometry(1, 64, 64);
-
-const box_geom = new THREE.BoxGeometry(10,2,2);
-box_geom.userData.obb = new OBB();
-box_geom.userData.obb.halfSize.copy(new THREE.Vector3(10,2,2)).multiplyScalar( 0.5 );
-
-const player_material = new THREE.MeshPhongMaterial({
-    color: 0xff0000
-});
-let playerIsBox = false;
 
 // Camera properties
 const cSpeed = 0.5;
@@ -158,42 +147,33 @@ function init() {
 
 function loadLevel(level) {
     document.getElementById('homeScreen').style.display = 'none';
-    currentLevel = level;
-    ball_geom = new THREE.SphereGeometry(1, 64, 64);
-    const newtexturemat = new THREE.TextureLoader().load('assets/glass.png');
+     currentLevel = level;
 
-    // const ball_material = new THREE.ShaderMaterial({
-    //     map : newtexturemat,
-    // });
-
-    const ball_material = new THREE.MeshPhongMaterial({
-        color: 0xff0000
-    });
-
-   
-    
-
-    player = new THREE.Mesh(ball_geom, ball_material);
-    player.castShadow =true;
-    scene.add(player);
     switch (level) {
         case 1:
-            import('./level1.js').then(level1 => obstacles = level1.setUpLevel(scene));
-            player = new THREE.Mesh(ball_geom, player_material);
-            playerIsBox = false;
-            scene.add(player);
+            import('./level1.js').then(level1 => {
+                const { player: newPlayer, obstacles: newObstacles } = level1.setUpLevel(scene)
+                player = newPlayer;
+                obstacles = newObstacles;
+            });
+
             break;
         case 2:
-            import('./level2.js').then(level2 =>  obstacles = level2.setUpLevel(scene, camera));
+            import('./level2.js').then(level2 => {
+                const { player: newPlayer, obstacles: newObstacles } = level2.setUpLevel(scene)
+                player = newPlayer;
+                obstacles = newObstacles;
+            });
             break;
         //case 3:
         //     import('./levels/level3.js').then(level3 => level3.setupLevel(scene, camera));
         //     break;
         case 4:
-            import('./level4.js').then(level4 => obstacles = level4.setUpLevel(scene));
-            player = new THREE.Mesh(box_geom, player_material);
-            playerIsBox = true;
-            scene.add(player);
+            import('./level4.js').then(level4 => {
+                const { player: newPlayer, obstacles: newObstacles } = level4.setUpLevel(scene)
+                player = newPlayer;
+                obstacles = newObstacles;
+            });
             break;
     }
     animate();
@@ -207,8 +187,9 @@ function animate() {
     // animation_time += delta;
     let game_time = clock.getElapsedTime();
    
+
     if (!obstructed){
-        if (!playerIsBox) {
+        // if (currentLevel != 4) {
             if (moveLeft) {
                 if (player.position.x < 15)
                     player.position.x += speed;
@@ -225,28 +206,29 @@ function animate() {
                 if (player.position.y > -15)
                     player.position.y -= speed;
             }
-        }
-        else{
-            if (moveLeft) {
-                player.rotation.z += speed;
-            }
-            if (moveRight) {
-                player.rotation.z -= speed;
-            }
-        }
+        //}
+        // else{
+        //     if (moveLeft) {
+        //         player.rotation.z += speed;
+        //     }
+        //     if (moveRight) {
+        //         player.rotation.z -= speed;
+        //     }
+        // }
     }
 
+
     let player_bounding;
-    if (!playerIsBox){
+    //if (currentLevel != 4){
         player.geometry.computeBoundingSphere();
         player_bounding = player.geometry.boundingSphere.clone();
         player_bounding.center.applyMatrix4(player.matrixWorld);
-    }
-    else{
-        player.userData.obb = new OBB();
-        player_bounding = player.userData.obb.clone();
-        player_bounding.applyMatrix4(player.matrixWorld);
-    }
+    // }
+    // else{
+    //     player.userData.obb = new OBB();
+    //     player_bounding = player.userData.obb.clone();
+    //     player_bounding.applyMatrix4(player.matrixWorld);
+    // }
 
 
     obstacles.forEach(function (obs,index){
@@ -429,7 +411,7 @@ function checkCollision(obs_bounding, player_bounding) {
     console.log("Box bounding:", obs_bounding);
     console.log("Ball bounding:", player_bounding);
 
-    if (!playerIsBox)
+    // if (currentLevel != 4)
         if (obs_bounding.intersectsSphere(player_bounding)) {
             console.log("The box and sphere are colliding!");
             return true;
@@ -438,15 +420,15 @@ function checkCollision(obs_bounding, player_bounding) {
             console.log("The box and sphere are not colliding!");
             return false;
         }
-    else{
-        if (obs_bounding.intersects(player_bounding)) {
-            console.log("The box and sphere are colliding!");
-            return true;
-        }
-        else{
-            return false;
-        }
-    }
+    // {
+    //     if (obs_bounding.intersects(player_bounding)) {
+    //         console.log("The box and sphere are colliding!");
+    //         return true;
+    //     }
+    //     else{
+    //         return false;
+    //     }else
+    // }
 }
 
 window.addEventListener('keydown', onKeyPress);

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OBB } from 'three/examples/jsm/Addons.js';
 
+
 let obstacles = [];
 
 export function setUpLevel(scene) {
@@ -285,35 +286,31 @@ export function setUpLevel(scene) {
     const back = new THREE.Mesh(floorGeometry, walls_material);
     back.position.z = -30;
     scene.add(back);
-
-
-    //BOX MATERIALS
-
-    const box_ob_texture = new THREE.TextureLoader().load('assets/stars.png');
-    box_ob_texture.minFilter = THREE.LinearMipMapLinearFilter;
-    const box_uniforms = {
-        uTexture: { value: box_ob_texture },
-        //animation_time: { value: animation_time }
-    };
-    const box_ob_shader = new Texture_Rotate();
-    const box_ob_material_texture = new THREE.ShaderMaterial({
-        uniforms: box_uniforms,
-        vertexShader: box_ob_shader.vertexShader(),
-        fragmentShader: box_ob_shader.fragmentShader(),
-    });
-
-    const box_ob_material_phong = new THREE.MeshPhongMaterial({
-        color: 0x48ff00, flatShading : true
-    });
-
     
-    function createBoxObstacle(x_i, y_i, z_i, length, width, height, transforms, box_ob_material){
+    function createBoxObstacle(x_i, y_i, z_i, length, width, height, transforms){
         const box_ob_geometry = new THREE.BoxGeometry(length, width, height);
         const size = new THREE.Vector3(length, width, height);
     
         box_ob_geometry.userData.obb = new OBB();
         box_ob_geometry.userData.obb.halfSize.copy(size).multiplyScalar( 0.5 );
+        // const box_ob_material = new THREE.MeshPhongMaterial({
+        // color: 0x48ff00, flatShading : true
+        // });
         
+        const box_ob_texture = new THREE.TextureLoader().load('assets/pink_bow.jpeg');
+        box_ob_texture.minFilter = THREE.LinearMipMapLinearFilter;
+    
+    
+        const box_uniforms = {
+            uTexture: { value: box_ob_texture },
+            //animation_time: { value: animation_time }
+        };
+        const box_ob_shader = new Texture_Rotate();
+        const box_ob_material = new THREE.ShaderMaterial({
+            uniforms: box_uniforms,
+            vertexShader: box_ob_shader.vertexShader(),
+            fragmentShader: box_ob_shader.fragmentShader(),
+        });
     
         const box_ob_mesh = new THREE.Mesh(box_ob_geometry, box_ob_material);
         box_ob_mesh.matrixAutoUpdate = false;
@@ -366,30 +363,30 @@ export function setUpLevel(scene) {
     
     // createBoxObstacle(0,0,50,10,3,2,[]);
     // createBoxObstacle(0,0,70,10,3,2,[addOscillatingTranslation(4, 10, 0, 0, -10)]);
-    createBoxObstacle(0,0,30,20,3,2,[addRotationZ(1)], box_ob_material_texture);
+    createBoxObstacle(0,0,30,20,3,2,[addRotationZ(1)]);
     
-    createBoxObstacle(10,0,30,10,3,2,[addScaling(4, 2, 1)], box_ob_material_phong);
-    createBoxObstacle(-6,0,30,10,3,2,[addScaling(4, 2, 1)], box_ob_material_phong);
+    createBoxObstacle(10,0,30,10,3,2,[addScaling(4, 2, 1)]);
+    createBoxObstacle(-6,0,30,10,3,2,[addScaling(4, 2, 1)]);
     
-    createBoxObstacle(8,0,40,10,3,2,[addScaling(4, 2, 1)], box_ob_material_texture);
-    createBoxObstacle(-9,0,40,10,3,2,[addScaling(4, 2, 1)], box_ob_material_texture);
+    createBoxObstacle(8,0,40,10,3,2,[addScaling(4, 2, 1)]);
+    createBoxObstacle(-9,0,40,10,3,2,[addScaling(4, 2, 1)]);
     
-    createBoxObstacle(10,0,50,6,4,2,[], box_ob_material_texture);
-    createBoxObstacle(1,-7,50,6,4,2,[], box_ob_material_phong);
-    createBoxObstacle(5,6,50,6,4,2,[], box_ob_material_texture);
-    createBoxObstacle(7,-4,50,6,4,2,[], box_ob_material_phong);
-    createBoxObstacle(9,9,50,6,4,2,[], box_ob_material_phong);
-    createBoxObstacle(-9,9,50,6,4,2,[], box_ob_material_texture);
-    createBoxObstacle(8,-9,50,6,4,2,[], box_ob_material_phong);
-    createBoxObstacle(-8,-7,50,6,4,2,[], box_ob_material_texture);
-    createBoxObstacle(-8,4,50,6,4,2,[], box_ob_material_phong);
-    createBoxObstacle(0,0,50,6,4,2,[], box_ob_material_texture);
+    createBoxObstacle(10,0,50,6,4,2,[]);
+    createBoxObstacle(1,-7,50,6,4,2,[]);
+    createBoxObstacle(5,6,50,6,4,2,[]);
+    createBoxObstacle(7,-4,50,6,4,2,[]);
+    createBoxObstacle(9,9,50,6,4,2,[]);
+    createBoxObstacle(-9,9,50,6,4,2,[]);
+    createBoxObstacle(8,-9,50,6,4,2,[]);
+    createBoxObstacle(-8,-7,50,6,4,2,[]);
+    createBoxObstacle(-8,4,50,6,4,2,[]);
+    createBoxObstacle(0,0,50,6,4,2,[]);
     
-    createBoxObstacle(-10,0,65,16,32,2,[addOscillatingTranslation(4, 10, 0, 0, -10)], box_ob_material_texture);
-    createBoxObstacle(10,0,65,16,32,2,[addOscillatingTranslation(4, 10, 0, 0, -10)], box_ob_material_texture);
+    createBoxObstacle(-10,0,65,16,32,2,[addOscillatingTranslation(4, 10, 0, 0, -10)]);
+    createBoxObstacle(10,0,65,16,32,2,[addOscillatingTranslation(4, 10, 0, 0, -10)]);
     
-    createBoxObstacle(8,0,75,5,3,2,[addRotationZ(1), addOscillatingTranslation(4, 10, 0, 0, -10), addScaling(4, 2, 1)], box_ob_material_texture);
-    createBoxObstacle(-8,0,75,5,3,2,[addRotationZ(1), addOscillatingTranslation(4, 10, 0, 0, -10), addScaling(4, 2, 1)], box_ob_material_phong);
+    createBoxObstacle(8,0,75,5,3,2,[addRotationZ(1), addOscillatingTranslation(4, 10, 0, 0, -10), addScaling(4, 2, 1)]);
+    createBoxObstacle(-8,0,75,5,3,2,[addRotationZ(1), addOscillatingTranslation(4, 10, 0, 0, -10), addScaling(4, 2, 1)]);
     
     return obstacles; 
 

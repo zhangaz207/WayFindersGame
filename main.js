@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { OBB } from 'three/examples/jsm/Addons.js';
 
 //Game Properties
 let currentLevel = 0;
@@ -15,6 +16,17 @@ let moveRight = false;
 let moveUp = false;
 let moveDown = false;
 let obstructed = false;
+
+const ball_geom = new THREE.SphereGeometry(1, 64, 64);
+
+const box_geom = new THREE.BoxGeometry(10,2,2);
+box_geom.userData.obb = new OBB();
+box_geom.userData.obb.halfSize.copy(new THREE.Vector3(10,2,2)).multiplyScalar( 0.5 );
+
+const player_material = new THREE.MeshPhongMaterial({
+    color: 0xff0000
+});
+let playerIsBox = false;
 
 // Camera properties
 const cSpeed = 0.5;
@@ -99,6 +111,7 @@ function init() {
     camera.position.set(-10,10,-10)
 
     renderer = new THREE.WebGLRenderer();
+    renderer.autoClearDepth = true;
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
@@ -109,36 +122,41 @@ function init() {
     const light = new THREE.AmbientLight(0x404040); // Ambient light
     scene.add(light);
     const directionalLight = new THREE.DirectionalLight(0xffffff, 5);
-    directionalLight.position.set(0,0,-5);
+    directionalLight.position.set(-10,5,10);
+    directionalLight.castShadow = true;
     //directionalLight.position.set(5, 10, -5).normalize();
     scene.add(directionalLight);
 
     document.getElementById('level1').addEventListener('click', () => loadLevel(1));
     // document.getElementById('level2').addEventListener('click', () => loadLevel(2));
     // document.getElementById('level3').addEventListener('click', () => loadLevel(3));
+    document.getElementById('level4').addEventListener('click', () => loadLevel(4));
 
 }
 
 function loadLevel(level) {
     document.getElementById('homeScreen').style.display = 'none';
     currentLevel = level;
-    const ball_geom = new THREE.SphereGeometry(1, 64, 64);
-    const ball_material = new THREE.MeshPhongMaterial({
-        color: 0xff0000
-    });
-        
-    player = new THREE.Mesh(ball_geom, ball_material);
-    scene.add(player);
+    
     switch (level) {
         case 1:
-            import('./level1.js').then(level1 => obstacles = level1.setUpLevel(scene, camera));
+            import('./level1.js').then(level1 => obstacles = level1.setUpLevel(scene));
+            player = new THREE.Mesh(ball_geom, player_material);
+            playerIsBox = false;
+            scene.add(player);
             break;
         // case 2:
-        //     import('./level2.js').then(level2 => level2.setupLevel(scene, camera));
+        //     import('./level2.js').then(level2 => obstacles = level2.setUpLevel(scene, camera));
         //     break;
         // case 3:
-        //     import('./levels/level3.js').then(level3 => level3.setupLevel(scene, camera));
+        //     import('./level3.js').then(level3 => obstacles = level3.setUpLevel(scene, camera));
         //     break;
+        case 4:
+            import('./level4.js').then(level4 => obstacles = level4.setUpLevel(scene));
+            player = new THREE.Mesh(box_geom, player_material);
+            playerIsBox = true;
+            scene.add(player);
+            break;
     }
     animate();
 }
@@ -152,27 +170,46 @@ function animate() {
     let game_time = clock.getElapsedTime();
    
     if (!obstructed){
-        if (moveLeft) {
-            if (player.position.x < 15)
-                player.position.x += speed;
+        if (!playerIsBox) {
+            if (moveLeft) {
+                if (player.position.x < 15)
+                    player.position.x += speed;
+            }
+            if (moveRight) {
+                if (player.position.x > -15)
+                    player.position.x -= speed;
+            }
+            if (moveUp) {
+                if (player.position.y < 15)
+                    player.position.y += speed;
+            }
+            if (moveDown) {
+                if (player.position.y > -15)
+                    player.position.y -= speed;
+            }
         }
-        if (moveRight) {
-            if (player.position.x > -15)
-                player.position.x -= speed;
-        }
-        if (moveUp) {
-            if (player.position.y < 15)
-                player.position.y += speed;
-        }
-        if (moveDown) {
-            if (player.position.y > -15)
-                player.position.y -= speed;
+        else{
+            if (moveLeft) {
+                player.rotation.z += speed;
+            }
+            if (moveRight) {
+                player.rotation.z -= speed;
+            }
         }
     }
-    
-    player.geometry.computeBoundingSphere();
-    const ball_bounding = player.geometry.boundingSphere.clone();
-    ball_bounding.center.applyMatrix4(player.matrixWorld);
+
+    let player_bounding;
+    if (!playerIsBox){
+        player.geometry.computeBoundingSphere();
+        player_bounding = player.geometry.boundingSphere.clone();
+        player_bounding.center.applyMatrix4(player.matrixWorld);
+    }
+    else{
+        player.userData.obb = new OBB();
+        player_bounding = player.userData.obb.clone();
+        player_bounding.applyMatrix4(player.matrixWorld);
+    }
+
 
     obstacles.forEach(function (obs,index){
         let currentdepth = new THREE.Vector4();
@@ -225,7 +262,7 @@ function animate() {
 
             //const bounding = new THREE.Box3().setFromObject(obs.mesh);
         
-            if (checkCollision(obs.mesh.userData.obb, ball_bounding)){
+            if (checkCollision(obs.mesh.userData.obb, player_bounding)){
                 obstructed = true;
             }
             else{
@@ -235,68 +272,68 @@ function animate() {
         }   
     });
 
-    let cameraTransform = new THREE.Matrix4();
-    cameraTransform.copy(player.matrix);
+    // let cameraTransform = new THREE.Matrix4();
+    // cameraTransform.copy(player.matrix);
 
-    if (!switchperspective) {
-        if (cLeft) {
-            if (c_x < 30)
-                c_x += cSpeed;
-        }
-        if (cRight) {
-            if (c_x > -60)
-                c_x -= cSpeed;
-        }
-        if (cUp) {
-            if (c_z < 60)
-                c_z += cSpeed;
-        }
-        if (cDown) {
-            if (c_z > -60)
-                c_z -= cSpeed;
-        }
+    // if (!switchperspective) {
+    //     if (cLeft) {
+    //         if (c_x < 30)
+    //             c_x += cSpeed;
+    //     }
+    //     if (cRight) {
+    //         if (c_x > -60)
+    //             c_x -= cSpeed;
+    //     }
+    //     if (cUp) {
+    //         if (c_z < 60)
+    //             c_z += cSpeed;
+    //     }
+    //     if (cDown) {
+    //         if (c_z > -60)
+    //             c_z -= cSpeed;
+    //     }
     
-        let offset = translationMatrix(c_x, c_y, c_z);
-        cameraTransform.multiply(offset);
-        let cameraPosition = new THREE.Vector3();
-        cameraPosition.setFromMatrixPosition(cameraTransform);
-        camera.position.lerp(cameraPosition, blendingFactor);
-        let ballPosition = new THREE.Vector3();
-        ballPosition.setFromMatrixPosition(player.matrix);
-        camera.lookAt(ballPosition);
-    }
-    else {
-        if (cLeft) {
-            if (currentangles.index == 0 || currentangles.index == 2) {
-                currentangles=perspectivesangles[currentangles.index+1 %4];
-            }
-        }
-        if (cRight) {
-            if (currentangles.index == 1 || currentangles.index == 3) {
-                currentangles=perspectivesangles[currentangles.index-1 %4];
-            }
-        }
-        if (cUp) {
-            if (currentangles.index == 2 || currentangles.index == 3) {
-                currentangles=perspectivesangles[currentangles.index-2 %4];
-            }
-        }
-        if (cDown) {
-            if (currentangles.index == 0 || currentangles.index == 1) {
-                currentangles=perspectivesangles[currentangles.index+2 %4];
-            } 
-        }
+    //     let offset = translationMatrix(c_x, c_y, c_z);
+    //     cameraTransform.multiply(offset);
+    //     let cameraPosition = new THREE.Vector3();
+    //     cameraPosition.setFromMatrixPosition(cameraTransform);
+    //     camera.position.lerp(cameraPosition, blendingFactor);
+    //     let ballPosition = new THREE.Vector3();
+    //     ballPosition.setFromMatrixPosition(player.matrix);
+    //     camera.lookAt(ballPosition);
+    // }
+    // else {
+    //     if (cLeft) {
+    //         if (currentangles.index == 0 || currentangles.index == 2) {
+    //             currentangles=perspectivesangles[currentangles.index+1 %4];
+    //         }
+    //     }
+    //     if (cRight) {
+    //         if (currentangles.index == 1 || currentangles.index == 3) {
+    //             currentangles=perspectivesangles[currentangles.index-1 %4];
+    //         }
+    //     }
+    //     if (cUp) {
+    //         if (currentangles.index == 2 || currentangles.index == 3) {
+    //             currentangles=perspectivesangles[currentangles.index-2 %4];
+    //         }
+    //     }
+    //     if (cDown) {
+    //         if (currentangles.index == 0 || currentangles.index == 1) {
+    //             currentangles=perspectivesangles[currentangles.index+2 %4];
+    //         } 
+    //     }
 
-        let offset = translationMatrix(currentangles.x, currentangles.y, currentangles.z);
-        cameraTransform.multiply(offset);
-        let cameraPosition = new THREE.Vector3();
-        cameraPosition.setFromMatrixPosition(cameraTransform);
-        camera.position.lerp(cameraPosition, blendingFactor);
-        let ballPosition = new THREE.Vector3();
-        ballPosition.setFromMatrixPosition(player.matrix);
-        camera.lookAt(ballPosition.x,ballPosition.y,ballPosition.z+20);
+    //     let offset = translationMatrix(currentangles.x, currentangles.y, currentangles.z);
+    //     cameraTransform.multiply(offset);
+    //     let cameraPosition = new THREE.Vector3();
+    //     cameraPosition.setFromMatrixPosition(cameraTransform);
+    //     camera.position.lerp(cameraPosition, blendingFactor);
+    //     let ballPosition = new THREE.Vector3();
+    //     ballPosition.setFromMatrixPosition(player.matrix);
+    //     camera.lookAt(ballPosition.x,ballPosition.y,ballPosition.z+20);
     
-    }
+    // }
 
     renderer.render(scene, camera);
 
@@ -327,18 +364,28 @@ init();
 
 // HELPER FUNCTIONS
 
-function checkCollision(obs_bounding, ball_bounding) {
+function checkCollision(obs_bounding, player_bounding) {
     // Check if the box intersects with the sphere's bounding sphere
     console.log("Box bounding:", obs_bounding);
-    console.log("Ball bounding:", ball_bounding);
+    console.log("Ball bounding:", player_bounding);
 
-    if (obs_bounding.intersectsSphere(ball_bounding)) {
-        console.log("The box and sphere are colliding!");
-        return true;
-    }
+    if (!playerIsBox)
+        if (obs_bounding.intersectsSphere(player_bounding)) {
+            console.log("The box and sphere are colliding!");
+            return true;
+        }
+        else{
+            console.log("The box and sphere are not colliding!");
+            return false;
+        }
     else{
-        console.log("The box and sphere are not colliding!");
-        return false;
+        if (obs_bounding.intersects(player_bounding)) {
+            console.log("The box and sphere are colliding!");
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 }
 

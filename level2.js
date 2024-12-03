@@ -244,49 +244,48 @@ export function setUpLevel(scene, camera) {
             uniforms: uniforms
         });
     }
+
+    // const walls_texture = new THREE.TextureLoader().load('assets/rgb.jpg');
+    // walls_texture.minFilter = THREE.LinearMipMapLinearFilter;
+    
+    // const walls_uniforms = {
+    //     uTexture: { value: walls_texture },
+    //     //animation_time: { value: animation_time }
+    // };
+    // const walls_shader = new Texture_Rotate();
+    // const walls_material = new THREE.ShaderMaterial({
+    //     uniforms: walls_uniforms,
+    //     vertexShader: walls_shader.vertexShader(),
+    //     fragmentShader: walls_shader.fragmentShader(),
+    // });
+    
+    // const floorGeometry = new THREE.PlaneGeometry(150, 150);
+    // const floor = new THREE.Mesh(floorGeometry, walls_material);
+    // floor.rotation.x = 3*Math.PI / 2;
+    // floor.position.y = -32;
+    // scene.add(floor);
+    // const ceiling = new THREE.Mesh(floorGeometry, walls_material);
+    // ceiling.rotation.x = Math.PI / 2;
+    // ceiling.position.y = 32;
+    // scene.add(ceiling);
     
     
-    const walls_texture = new THREE.TextureLoader().load('assets/rgb.jpg');
-    walls_texture.minFilter = THREE.LinearMipMapLinearFilter;
+    // const left = new THREE.Mesh(floorGeometry, walls_material);
+    // left.rotation.y = Math.PI / 2;
+    // left.position.x = -32;
+    // scene.add(left);
+    // const right = new THREE.Mesh(floorGeometry, walls_material);
+    // right.rotation.y = 3* Math.PI / 2;
+    // right.position.x = 32;
+    // scene.add(right);
     
-    const walls_uniforms = {
-        uTexture: { value: walls_texture },
-        //animation_time: { value: animation_time }
-    };
-    const walls_shader = new Texture_Rotate();
-    const walls_material = new THREE.ShaderMaterial({
-        uniforms: walls_uniforms,
-        vertexShader: walls_shader.vertexShader(),
-        fragmentShader: walls_shader.fragmentShader(),
-    });
-    
-    const floorGeometry = new THREE.PlaneGeometry(150, 150);
-    const floor = new THREE.Mesh(floorGeometry, walls_material);
-    floor.rotation.x = 3*Math.PI / 2;
-    floor.position.y = -32;
-    scene.add(floor);
-    const ceiling = new THREE.Mesh(floorGeometry, walls_material);
-    ceiling.rotation.x = Math.PI / 2;
-    ceiling.position.y = 32;
-    scene.add(ceiling);
-    
-    
-    const left = new THREE.Mesh(floorGeometry, walls_material);
-    left.rotation.y = Math.PI / 2;
-    left.position.x = -32;
-    scene.add(left);
-    const right = new THREE.Mesh(floorGeometry, walls_material);
-    right.rotation.y = 3* Math.PI / 2;
-    right.position.x = 32;
-    scene.add(right);
-    
-    const front = new THREE.Mesh(floorGeometry, walls_material);
-    front.position.z = 80;
-    front.rotation.y=2*Math.PI;
-    scene.add(front);
-    const back = new THREE.Mesh(floorGeometry, walls_material);
-    back.position.z = -30;
-    scene.add(back);
+    // const front = new THREE.Mesh(floorGeometry, walls_material);
+    // front.position.z = 80;
+    // front.rotation.y=2*Math.PI;
+    // scene.add(front);
+    // const back = new THREE.Mesh(floorGeometry, walls_material);
+    // back.position.z = -30;
+    // scene.add(back);
     
     function createBoxObstacle(x_i, y_i, z_i, length, width, height, transforms){
         const box_ob_geometry = new THREE.BoxGeometry(length, width, height);
@@ -298,7 +297,7 @@ export function setUpLevel(scene, camera) {
         // color: 0x48ff00, flatShading : true
         // });
         
-        const box_ob_texture = new THREE.TextureLoader().load('assets/stars.png');
+        const box_ob_texture = new THREE.TextureLoader().load('assets/smallmoontexture.png');
         box_ob_texture.minFilter = THREE.LinearMipMapLinearFilter;
     
     
@@ -306,16 +305,26 @@ export function setUpLevel(scene, camera) {
             uTexture: { value: box_ob_texture },
             //animation_time: { value: animation_time }
         };
-        const box_ob_shader = new Texture_Rotate();
-        const box_ob_material = new THREE.ShaderMaterial({
-            uniforms: box_uniforms,
-            vertexShader: box_ob_shader.vertexShader(),
-            fragmentShader: box_ob_shader.fragmentShader(),
+        //const box_ob_shader = new Texture_Rotate();
+
+        const box_ob_material = new THREE.MeshStandardMaterial({
+            bumpMap : box_ob_texture,
+            bumpScale : 5,
+            color : 0x888888,
         });
+
+        // const box_ob_material = new THREE.ShaderMaterial({
+        //     uniforms: box_uniforms,
+        //     vertexShader: box_ob_shader.vertexShader(),
+        //     fragmentShader: box_ob_shader.fragmentShader(),
+        // });
     
         const box_ob_mesh = new THREE.Mesh(box_ob_geometry, box_ob_material);
+        //box_ob_mesh.castShadow = true;
+        //box_ob_mesh.receiveShadow = true;
+
         box_ob_mesh.matrixAutoUpdate = false;
-        box_ob_mesh.visible=true;
+        box_ob_mesh.visible=false;
         scene.add(box_ob_mesh);
         box_ob_mesh.userData.obb = new OBB();
     
@@ -369,35 +378,60 @@ export function setUpLevel(scene, camera) {
 
 
 
-    //good ones //weird teleportation //doesnt apply forward moving transformation
-    //   createBoxObstacle(0,-32,30,64,8,3,[addOscillatingTranslation(6,0,8,5,0)]);
-    //   createBoxObstacle(0,-24,33,64,8,3,[addOscillatingTranslation(6,0,8,4,0)]);
-    //   createBoxObstacle(0,-16,36,64,8,3,[addOscillatingTranslation(6,0,8,3,0)]);
-    //   createBoxObstacle(0,-8,39,64,8,3, [addOscillatingTranslation(6,0,8,2,0)]);
-    //   createBoxObstacle(0,0,42,64,8,3,  [addOscillatingTranslation(6,0,8,1,0)]);
+    // //good ones //weird teleportation //doesnt apply forward moving transformation
+    //   createBoxObstacle(0,-32,30,64,8,6,[addOscillatingTranslation(10,0,3,5,0)]);
+    //   createBoxObstacle(0,-24,36,64,8,6,[addOscillatingTranslation(10,0,3,4,0)]);
+    //   createBoxObstacle(0,-16,42,64,8,6,[addOscillatingTranslation(10,0,3,3,0)]);
+    //   createBoxObstacle(0,-8,48,64,8,6, [addOscillatingTranslation(10,0,3,2,0)]);
+    //  // createBoxObstacle(0,0,54,64,8,6,  [addOscillatingTranslation(10,0,10,1,0)]);
+
+    //   createBoxObstacle(0,32,30,64,8,6,[addOscillatingTranslation(10,0,3,5,0)]);
+    //   createBoxObstacle(0,24,36,64,8,6,[addOscillatingTranslation(10,0,3,4,0)]);
+    //   createBoxObstacle(0,16,42,64,8,6,[addOscillatingTranslation(10,0,3,3,0)]);
+    //   createBoxObstacle(0,8,48,64,8,6, [addOscillatingTranslation(10,0,3,2,0)]);
+    //   //createBoxObstacle(0,0,54,64,8,6,  [addOscillatingTranslation(10,0,10,1,0)]);
     
-    //set 2
-    // createBoxObstacle(-12,-12,55,5,3,2,[addRotationZ(-2)]);
-    // createBoxObstacle(12,-12,55,5,3,2,[addRotationZ(-2)]);
-    // createBoxObstacle(-12,12,55,5,3,2,[addRotationZ(-2)]);
-    // createBoxObstacle(12,12,55,5,3,2,[addRotationZ(-2)]);
+    // //set 2
+    // createBoxObstacle(-12,-12,65,5,3,2,[addRotationZ(-2)]);
+    // createBoxObstacle(12,-12,65,5,3,2,[addRotationZ(-2)]);
+    // createBoxObstacle(-12,12,65,5,3,2,[addRotationZ(-2)]);
+    // createBoxObstacle(12,12,65,5,3,2,[addRotationZ(-2)]);
 
-    // createBoxObstacle(-6,-6,55,5,3,2,[addRotationZ(1),addScaling(1.5, 1, 1)]);
-    // createBoxObstacle(6,-6,55,5,3,2,[addRotationZ(1),addScaling(1.5, 1, 1)]);
-    // createBoxObstacle(-6,6,55,5,3,2,[addRotationZ(1),addScaling(1.5, 1, 1)]);
-    // createBoxObstacle(6,6,55,5,3,2,[addRotationZ(1),addScaling(1.5, 1, 1)]);
-    // createBoxObstacle(0,0,55,4,4,2,[addRotationZ(5),addScaling(1, 1, 1)]);
+    // createBoxObstacle(-6,-6,65,5,3,2,[addRotationZ(1),addScaling(1.5, 1, 1)]);
+    // createBoxObstacle(6,-6,65,5,3,2,[addRotationZ(1),addScaling(1.5, 1, 1)]);
+    // createBoxObstacle(-6,6,65,5,3,2,[addRotationZ(1),addScaling(1.5, 1, 1)]);
+    // createBoxObstacle(6,6,65,5,3,2,[addRotationZ(1),addScaling(1.5, 1, 1)]);
+    // createBoxObstacle(0,0,65,4,4,2,[addRotationZ(5),addScaling(1, 1, 1)]);
 
-    //set 3
-    //regular trnaslation brokjen
-    createBoxObstacle(2.5,2.5,65,5,5,2,[addRotationZ(0.5), addScaling(1.5,1,1)]);
-    createBoxObstacle(-2.5,-2.5,65,5,5,2,[addRotationZ(0.5), addScaling(1.5,1,1)]);
-    createBoxObstacle(-2.5,2.5,65,5,5,2,[addRotationZ(0.5), addScaling(1.5,1,1)]);
-    createBoxObstacle(2.5,-2.5,65,5,5,2,[addRotationZ(0.5), addScaling(1.5,1,1)]);
+    // //set 3
+    // //regular trnaslation brokjen
+    // createBoxObstacle(2.5,2.5,75,5,5,2,[addRotationZ(0.5), addScaling(4,2,0)]);
+    // createBoxObstacle(-2.5,-2.5,75,5,5,2,[addRotationZ(0.5), addScaling(3,1.5,0)]);
+    // createBoxObstacle(-2.5,2.5,75,5,5,2,[addRotationZ(0.5), addScaling(1.5,1,0)]);
+    // createBoxObstacle(2.5,-2.5,75,5,5,2,[addRotationZ(0.5), addScaling(1.5,1,0)]);
 
 
+    //set 4
 
-    
+    let mydist = 50;
+
+    createBoxObstacle(8,-8,85-mydist,16,16,5,[addOscillatingTranslation(5,0,0,7,0)]);
+    createBoxObstacle(8,8,85-mydist,16,16,5,[addOscillatingTranslation(5,0,0,7,0 )]);
+
+    createBoxObstacle(-8,-8,95-mydist,16,16,5,[addOscillatingTranslation(10,0,0,7,0)]);
+    createBoxObstacle(-8,8,95-mydist,16,16,5,[addOscillatingTranslation(10,0,0,7,0)]);
+
+    createBoxObstacle(8,-8,115-mydist,16,16,5,[addOscillatingTranslation(5,0,0,7,0)]);
+    createBoxObstacle(-8,8,115-mydist,16,16,5,[addOscillatingTranslation(5,0,0,7,0 )]);
+
+    createBoxObstacle(-8,-8,135-mydist,16,16,5,[addOscillatingTranslation(10,0,0,7,0)]);
+    createBoxObstacle(8,8,135-mydist,16,16,5,[addOscillatingTranslation(10,0,0,7,0)]);
+
+    createBoxObstacle(8,8,155-mydist,16,16,5,[addOscillatingTranslation(5,0,0,7,0)]);
+    createBoxObstacle(-8,8,155-mydist,16,16,5,[addOscillatingTranslation(5,0,0,7,0 )]);
+
+    createBoxObstacle(-8,-8,175-mydist,16,16,5,[addOscillatingTranslation(5,0,0,7,0)]);
+    createBoxObstacle(8,-8,175-mydist,16,16,5,[addOscillatingTranslation(5,0,0,7,0)]);
 
     // createBoxObstacle(10,0,30,10,3,2,[addScaling(4, 2, 1)]);
     // createBoxObstacle(-6,0,30,10,3,2,[addScaling(4, 2, 1)]);

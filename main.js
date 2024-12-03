@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { cubeTexture, DirectionalLight } from 'three/webgpu';
 
 //Game Properties
 let currentLevel = 0;
-let scene, camera, renderer, controls, player;
+let scene, camera, renderer, controls, player, directionalLight, ball_geom;
 const clock = new THREE.Clock();
 let blendingFactor = 0.1;
 let obstacles = [];
@@ -89,16 +90,23 @@ function scalingMatrix(x,y,z) {
 }
 
 function oscillation(period, time, speed, adjust){
-    return Math.abs(speed * (time % period) - speed*2) + adjust;
+    return Math.abs(speed * (time % period) - period*speed/2) + adjust;
 }
 
 function init() {
     scene = new THREE.Scene();
+    //const scenebackgroundtexture = new THREE.TextureLoader().load('assets/text.png');
+    const loader = new THREE.CubeTextureLoader();
+    const texture = loader.load(['assets/finalspacestuff.png','assets/finalspacestuff.png','assets/finalspacestuff.png','assets/finalspacestuff.png','assets/finalspacestuff.png','assets/finalspacestuff.png']);
+    scene.background = texture;
 
     camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.set(-10,10,-10)
+    camera.position.set(-10,10,-20)
 
     renderer = new THREE.WebGLRenderer();
+
+    renderer.shadowMap.enabled =true;
+    //renderer.shadowMap.type=THREE.PCFShadowMap;    
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
@@ -108,13 +116,26 @@ function init() {
 
     //const light = new THREE.AmbientLight(0x404040); // Ambient light
     //scene.add(light);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 10);
-    directionalLight.position.set(0,0,-5);
+    directionalLight = new THREE.DirectionalLight(0xffffff, 5);
+    directionalLight.position.set(0,0,-1);
     //directionalLight.position.set(5, 10, -5).normalize();
+    directionalLight.castShadow =true;
+    directionalLight.shadow.mapSize.width =1024;
+    directionalLight.shadow.mapSize.height =1024;
+    directionalLight.shadow.camera.left = -32;
+    directionalLight.shadow.camera.right = 32;
+    directionalLight.shadow.camera.top = 32;
+    directionalLight.shadow.camera.bottom = -32;
+    directionalLight.shadow.camera.near =0.5;
+    directionalLight.shadow.camera.far =100;
+    directionalLight.shadow.bias =0.005;
+
+
     scene.add(directionalLight);
-    const balllight = new THREE.Light(0xffffff,5);
-    balllight.position.set(0,0,75);
-    scene.add(balllight);
+    // const balllight = new THREE.Light(0xffffff,5);
+    // balllight.position.set(0,0,75);
+    // scene.add(balllight);
+
 
     document.getElementById('level1').addEventListener('click', () => loadLevel(1));
     document.getElementById('level2').addEventListener('click', () => loadLevel(2));
@@ -125,12 +146,22 @@ function init() {
 function loadLevel(level) {
     document.getElementById('homeScreen').style.display = 'none';
     currentLevel = level;
-    const ball_geom = new THREE.SphereGeometry(1, 64, 64);
+    ball_geom = new THREE.SphereGeometry(1, 64, 64);
+    const newtexturemat = new THREE.TextureLoader().load('assets/glass.png');
+
+    // const ball_material = new THREE.ShaderMaterial({
+    //     map : newtexturemat,
+    // });
+
     const ball_material = new THREE.MeshPhongMaterial({
         color: 0xff0000
     });
-        
+
+   
+    
+
     player = new THREE.Mesh(ball_geom, ball_material);
+    player.castShadow =true;
     scene.add(player);
     switch (level) {
         case 1:
@@ -181,8 +212,18 @@ function animate() {
         let currentdepth = new THREE.Vector4();
         currentdepth.setFromMatrixPosition(obs.mesh.matrixWorld);
         console.log('currentdepth',currentdepth.z);
+        
+        if (currentdepth.z >=45) {
+            obs.mesh.visible =false;
+        }
 
-        if (currentdepth.z < -6) {
+        if(currentdepth.z <45 && currentdepth.z >=-12) {
+            obs.mesh.castShadow=true;
+            obs.mesh.visible=true;
+            obs.mesh.receiveShadow =true;
+        }
+
+        if (currentdepth.z < -12) {
             obs.mesh.visible =false;
         }
         if (!obstructed){
@@ -193,7 +234,7 @@ function animate() {
                 let matrix;
                 switch(t.tr_type) {
                     case translation:
-                        matrix = translationMatrix(t.speed * game_time); //something wrong
+                        matrix = translationMatrix(t.speedX * game_time,t.speedY*game_time, t.speedZ*game_time); //something wrong
                         break;
                     case oscillating_translation:
                         matrix = translationMatrix(oscillation(t.period, game_time, t.speedX, t.speedX ? t.adjust : 0), oscillation(t.period, game_time, t.speedY, t.speedY ? t.adjust : 0), oscillation(t.period, game_time, t.speedZ, t.speedZ ? t.adjust : 0));
@@ -236,6 +277,7 @@ function animate() {
             }
 
         }   
+        
     });
 
     // let cameraTransform = new THREE.Matrix4();
@@ -301,6 +343,16 @@ function animate() {
     
     //}
 
+    //directional light movement
+    directionalLight.position.x=camera.position.x;
+    directionalLight.position.y=camera.position.y;
+    directionalLight.position.z=camera.position.z;
+
+    directionalLight.rotationX=camera.rotationX;
+    directionalLight.rotationY=camera.rotationY;
+    directionalLight.rotationZ=camera.rotationZ;
+
+
     renderer.render(scene, camera);
 
     // const ball_translation = translationMatrix(0, 0, animation_time * 3);
@@ -323,6 +375,7 @@ function animate() {
     // TODO: 2.b&2.c Update uniform values
     // cube1_uniforms.animation_time.value = animation_time;
     // cube2_uniforms.animation_time.value = animation_time;
+
 
 }
 

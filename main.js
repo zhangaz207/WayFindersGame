@@ -193,7 +193,7 @@ function animate() {
                 let matrix;
                 switch(t.tr_type) {
                     case translation:
-                        matrix = translationMatrix(t.speed * game_time);
+                        matrix = translationMatrix(t.speed * game_time); //something wrong
                         break;
                     case oscillating_translation:
                         matrix = translationMatrix(oscillation(t.period, game_time, t.speedX, t.speedX ? t.adjust : 0), oscillation(t.period, game_time, t.speedY, t.speedY ? t.adjust : 0), oscillation(t.period, game_time, t.speedZ, t.speedZ ? t.adjust : 0));

@@ -1,3 +1,4 @@
+<!--
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -63,3 +64,226 @@
 
 	<script type="module" src="/main.js"></script>
 	</html>
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic HTML with Neon Background</title>
+    <!-- Pixeloid Sans Font -->
+    <link href="https://fonts.cdnfonts.com/css/pixeloid-sans" rel="stylesheet">
+    <style>
+		#homeScreen {
+            margin: 0;
+            font-family: 'Pixeloid Sans', sans-serif;
+            background-image: url('https://img.freepik.com/free-vector/neon-landscape-background_53876-91655.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            position: relative;
+		}
+
+		#loseScreen{
+			background-color: #1a1a1a;
+            color: white;
+            font-family: 'Pixeloid Sans', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around; 
+            align-items: center;
+            height: 100vh;
+		}
+
+        .top-score {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.5rem;
+            color: black;
+            background: radial-gradient(circle, white, yellow);
+            padding: 10px 20px;
+            border-radius: 50%;
+            text-align: center;
+            box-shadow: 0px 4px 10px rgba(255, 255, 0, 0.8);
+            transform: scale(1);
+            transition: transform 0.3s ease-in-out;
+            font-family: 'Pixeloid Sans', sans-serif;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .top-score:hover {
+            transform: scale(1.1);
+        }
+
+        .title-container {
+            background-color: rgba(37, 51, 33, 0.8); /* Semi-transparent dark green */
+            padding: 20px 40px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 4rem;
+            margin: 0;
+            background: linear-gradient(to right, #eb4038, #fa9708, yellow, #2bba1f, #2b6df3, #f345e4);
+            -webkit-background-clip: text;
+  			background-clip: text;
+  			color: transparent;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.35);
+        }
+
+        #start-button {
+            background-color: rgba(62, 78, 60, 0.8);
+            color: white;
+            font-size: 1.5rem;
+            padding: 10px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: -10px;
+            font-family: 'Pixeloid Sans', sans-serif;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        #start-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.7);
+        }
+
+        .placeholder-image {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-color: gray;
+            border: 2px solid white;
+            border-radius: 10px;
+        }
+
+        .top-left img {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 100px;
+            height: 100px;
+            border: 2px solid white;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .bottom-right img {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 100px;
+            height: 100px;
+            border: 2px solid white;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+		#level-buttons-container {
+			display: flex;
+			justify-content: center;
+			gap: 10px; /* Adds space between buttons */
+			margin-top: 20px;
+		}
+
+		#level-buttons-container button {
+			background-color: rgba(62, 78, 60, 0.8);
+			color: white;
+			font-size: 1.2rem;
+			padding: 10px 20px;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
+			transition: transform 0.2s, box-shadow 0.2s;
+			font-family: 'Pixeloid Sans', sans-serif;
+			text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+		}
+
+		#level-buttons-container button:hover {
+			transform: scale(1.05);
+			box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.7);
+		}
+
+		#game-over {
+            color: darkred;
+            font-size: 60px;
+            animation: flashInOut 3s infinite ease-in-out;
+        }
+        #level-message {
+            color: lightgreen;
+            font-size: 40px;
+        }
+        #restart-button {
+            background-color: rgba(52, 38, 203, 0.4);
+            color: white;
+            padding: 10px 20px;
+            font-size: 40px;
+            font-family: 'Pixeloid Sans', sans-serif;
+            border: none;
+            cursor: pointer;
+        }
+        #restart-button:hover {
+            background-color: darkblue;
+		}
+    </style>
+</head>
+<body>
+	<div id="homeScreen">
+		<div class="top-score" id="top-score-container">
+			Top Score: <span id="top-score">0</span>
+		</div>
+		<div class="top-left">
+			<img src="path/to/top-left-image.png" alt="Top Left Placeholder">
+		</div>
+		<div class="bottom-right">
+			<img src="path/to/bottom-right-image.png" alt="Bottom Right Placeholder">
+		</div>
+		<div class="title-container">
+			<h1>The Wayfinders</h1>
+		</div>
+		<button id="start-button">Start!</button>
+		<div id="level-buttons-container">
+			<button id="level1">Level 1!</button>
+			<button id="level2">Level 2!</button>
+			<button id="level3">Level 3!</button>
+			<button id="level4">Level 4!</button>
+			<button id="level5">Level 5!</button>
+		</div>	
+	</div>
+	<div id="winScreen">
+		<h1>You Win</h1>
+		<button id="HomeWin">Home</button>
+		<button id="RestartWin">Restart</button>
+	</div>
+    <div id="loseScreen"> 
+		<img src="https://media.istockphoto.com/id/1040956110/vector/pixel-skull-and-crossbones-icon-vector-illustration.jpg?s=612x612&w=0&k=20&c=2SqrmTbeOeOT7wq6uWc-X_QyBJ0VAIdE-cRiuhUoPow=" alt="Pixel Skull Icon" width="150" height="150">
+		<div id="game-over">Game Over</div>
+		<div id="level-message">Good Job! You made it to level: <span id="level">5</span></div>
+		<button id="restart-button" onclick="restartGame()">Restart</button>
+	</div>
+    <script>
+        // Placeholder for the top score variable
+        let topScore = 100; // Example score, replace with dynamic value as needed
+        document.getElementById("top-score").textContent = topScore;
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script type="module" src="/main.js"></script>
+</body>
+</html>

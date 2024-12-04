@@ -113,34 +113,40 @@ function init() {
 }
 
 function showHomeScreen() {
-    document.getElementById('homeScreen').style.display = 'block';
+    document.getElementById('homeScreen').style.display = '';
     document.getElementById('loseScreen').style.display = 'none';
     document.getElementById('winScreen').style.display = 'none';
     document.getElementById('level1').addEventListener('click', () => loadLevel(1));
     document.getElementById('level2').addEventListener('click', () => loadLevel(2));
-
+    document.getElementById('level3').addEventListener('click', () => loadLevel(3));
+    document.getElementById('level4').addEventListener('click', () => loadLevel(4));
+    document.getElementById('level5').addEventListener('click', () => loadLevel(5));
 }
-
   
 function showWinScreen() {
-    document.getElementById('winScreen').style.display = 'block';
+    document.getElementById('winScreen').style.display = '';
 }
-
   
 function showLoseScreen() {
-    document.getElementById('loseScreen').style.display = 'block';
-    
-    document.getElementById('HomeLose').addEventListener('click', () => showHomeScreen());
-    document.getElementById('RestartLose').addEventListener('click', () => loadLevel(currentLevel));
+    document.getElementById('loseScreen').style.display = '';
+    document.getElementById('restart-button').addEventListener('click', () => reloadFunct());
     removeEventListeners();
+}
+
+function reloadFunct() {
+    location.reload();
+    showHomeScreen();
 }
 
 function removeEventListeners(){
 
     document.getElementById('level1').removeEventListener('click', () => loadLevel(1));
     document.getElementById('level2').removeEventListener('click', () => loadLevel(2));
+    document.getElementById('level3').removeEventListener('click', () => loadLevel(3));
+    document.getElementById('level4').removeEventListener('click', () => loadLevel(4));
+    document.getElementById('level5').removeEventListener('click', () => loadLevel(5));
     document.getElementById('HomeLose').removeEventListener('click', () => showHomeScreen());
-    document.getElementById('RestartLose').removeEventListener('click', () => loadLevel(currentLevel));
+    document.getElementById('restart-button').removeEventListener('click', () => loadLevel(currentLevel));
 
 
 }

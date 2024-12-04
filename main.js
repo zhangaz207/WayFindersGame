@@ -3,12 +3,13 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { OBB } from 'three/examples/jsm/Addons.js';
 
 //Game Properties
-let currentLevel = 0;
+let currentLevel;
 let scene, camera, renderer, controls, directionalLight;
-const clock = new THREE.Clock();
+let clock;
 let blendingFactor = 0.1;
 let obstacles;
 let player;
+let isGameActive = false;
 
 //Player properties
 const speed = 0.1;
@@ -95,7 +96,74 @@ function oscillation(period, time, speed, adjust){
 }
 
 function init() {
+    showHomeScreen();
+    renderer = new THREE.WebGLRenderer();
+
+    renderer.shadowMap.enabled =true;
+    //renderer.shadowMap.type=THREE.PCFShadowMap;    
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
     scene = new THREE.Scene();
+    // document.getElementById('level1').addEventListener('click', () => loadLevel(1));
+    // document.getElementById('level2').addEventListener('click', () => loadLevel(2));
+    // document.getElementById('level3').addEventListener('click', () => loadLevel(3));
+    // document.getElementById('level4').addEventListener('click', () => loadLevel(4));
+
+}
+
+function showHomeScreen() {
+    document.getElementById('homeScreen').style.display = 'block';
+    document.getElementById('loseScreen').style.display = 'none';
+    document.getElementById('winScreen').style.display = 'none';
+    document.getElementById('level1').addEventListener('click', () => loadLevel(1));
+    document.getElementById('level2').addEventListener('click', () => loadLevel(2));
+
+}
+
+  
+function showWinScreen() {
+    document.getElementById('winScreen').style.display = 'block';
+}
+
+  
+function showLoseScreen() {
+    document.getElementById('loseScreen').style.display = 'block';
+    
+    document.getElementById('HomeLose').addEventListener('click', () => showHomeScreen());
+    document.getElementById('RestartLose').addEventListener('click', () => loadLevel(currentLevel));
+    removeEventListeners();
+}
+
+function removeEventListeners(){
+
+    document.getElementById('level1').removeEventListener('click', () => loadLevel(1));
+    document.getElementById('level2').removeEventListener('click', () => loadLevel(2));
+    document.getElementById('HomeLose').removeEventListener('click', () => showHomeScreen());
+    document.getElementById('RestartLose').removeEventListener('click', () => loadLevel(currentLevel));
+
+
+}
+function clearScene() {
+    // Remove all objects from the scene
+    scene.traverse((object) => {
+        if (object instanceof THREE.Mesh) {
+            object.geometry.dispose();
+            object.material.dispose();
+        }
+        scene.remove(object);
+    });
+}
+
+function loadLevel(level) {
+    clearScene();
+    document.getElementById('homeScreen').style.display = 'none';
+    document.getElementById('winScreen').style.display = 'none';
+    document.getElementById('loseScreen').style.display = 'none';
+    document.body.appendChild(renderer.domElement);
+
+    currentLevel = level;
+
     //const scenebackgroundtexture = new THREE.TextureLoader().load('assets/text.png');
     const loader = new THREE.CubeTextureLoader();
     const texture = loader.load(['assets/finalspacestuff.png','assets/finalspacestuff.png','assets/finalspacestuff.png','assets/finalspacestuff.png','assets/finalspacestuff.png','assets/finalspacestuff.png']);
@@ -103,14 +171,6 @@ function init() {
 
     camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
     camera.position.set(-10,10,-20)
-
-    renderer = new THREE.WebGLRenderer();
-
-    renderer.shadowMap.enabled =true;
-    //renderer.shadowMap.type=THREE.PCFShadowMap;    
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
 
     controls = new OrbitControls(camera, renderer.domElement);
     controls.target.set(0, 0, 0);
@@ -137,17 +197,7 @@ function init() {
     // balllight.position.set(0,0,75);
     // scene.add(balllight);
 
-
-    document.getElementById('level1').addEventListener('click', () => loadLevel(1));
-    document.getElementById('level2').addEventListener('click', () => loadLevel(2));
-    // document.getElementById('level3').addEventListener('click', () => loadLevel(3));
-    document.getElementById('level4').addEventListener('click', () => loadLevel(4));
-
-}
-
-function loadLevel(level) {
-    document.getElementById('homeScreen').style.display = 'none';
-     currentLevel = level;
+    clock = new THREE.Clock();
 
     switch (level) {
         case 1:
@@ -169,17 +219,19 @@ function loadLevel(level) {
         //     import('./levels/level3.js').then(level3 => level3.setupLevel(scene, camera));
         //     break;
         case 4:
-            import('./level4.js').then(level4 => {
-                const { player: newPlayer, obstacles: newObstacles } = level4.setUpLevel(scene)
-                player = newPlayer;
-                obstacles = newObstacles;
-            });
+            // import('./level4.js').then(level4 => {
+            //     const { player: newPlayer, obstacles: newObstacles } = level4.setUpLevel(scene)
+            //     player = newPlayer;
+            //     obstacles = newObstacles;
+            // });
             break;
     }
     animate();
 }
 
 function animate() {
+    if (!isGameActive)
+        return;
     
     controls.update();
     requestAnimationFrame(animate);
@@ -188,8 +240,8 @@ function animate() {
     let game_time = clock.getElapsedTime();
    
 
-    if (!obstructed){
-        // if (currentLevel != 4) {
+    // if (!obstructed){
+        if (currentLevel != 4) {
             if (moveLeft) {
                 if (player.position.x < 15)
                     player.position.x += speed;
@@ -206,21 +258,21 @@ function animate() {
                 if (player.position.y > -15)
                     player.position.y -= speed;
             }
-        //}
-        // else{
-        //     if (moveLeft) {
-        //         player.rotation.z += speed;
-        //     }
-        //     if (moveRight) {
-        //         player.rotation.z -= speed;
-        //     }
-        // }
-    }
+        }
+        else{
+            if (moveLeft) {
+                player.rotation.z += speed;
+            }
+            if (moveRight) {
+                player.rotation.z -= speed;
+            }
+        }
+    //}
 
 
     let player_bounding;
     //if (currentLevel != 4){
-        player.geometry.computeBoundingSphere();
+
         player_bounding = player.geometry.boundingSphere.clone();
         player_bounding.center.applyMatrix4(player.matrixWorld);
     // }
@@ -234,7 +286,7 @@ function animate() {
     obstacles.forEach(function (obs,index){
         let currentdepth = new THREE.Vector4();
         currentdepth.setFromMatrixPosition(obs.mesh.matrixWorld);
-        console.log('currentdepth',currentdepth.z);
+        //console.log('currentdepth',currentdepth.z);
         
         if (currentdepth.z >=45) {
             obs.mesh.visible =false;
@@ -249,7 +301,7 @@ function animate() {
         if (currentdepth.z < -12) {
             obs.mesh.visible =false;
         }
-        if (!obstructed){
+        // if (!obstructed){
             
             let model_transform = new THREE.Matrix4();
             
@@ -286,20 +338,52 @@ function animate() {
             obs.mesh.matrix.copy(model_transform);
 
             obs.mesh.userData.obb.copy( obs.mesh.geometry.userData.obb );
-            console.log(obs.mesh.matrixWorld)
+            //console.log(obs.mesh.matrixWorld)
             obs.mesh.userData.obb.applyMatrix4( model_transform );
-            console.log(obs.mesh.userData.obb)
+            //console.log(obs.mesh.userData.obb)
 
             //const bounding = new THREE.Box3().setFromObject(obs.mesh);
         
             if (checkCollision(obs.mesh.userData.obb, player_bounding)){
-                obstructed = true;
-            }
-            else{
-                obstructed = false;
+                
+                scene.background = null;
+                // for(var i = scene.children.length - 1; i >= 0; i--) { 
+                //     obj = scene.children[i];
+                //     scene.remove(obj); 
+                // }
+                // while (scene.children.length > 0){
+                //     scene.remove(scene.children[0]);
+                // }
+                // if (renderer && renderer.domElement && document.body.contains(renderer.domElement)) {
+                //     document.body.removeChild(renderer.domElement);
+                //  }
+
+                while (scene.children.length > 0) {
+                    console.log(scene.children.length)
+                    const object = scene.children[0];
+                    scene.remove(object);
+                    if (object instanceof THREE.Mesh) {
+                        object.geometry.dispose();
+                       
+                        object.material.dispose();
+    
+                        object.texture.dispose();
+                    }
+            
+                    
+                }
+
+                if (document.body.contains(renderer.domElement)) {
+                    document.body.removeChild(renderer.domElement);
+                }
+                
+                isGameActive = false;
+                showLoseScreen();
+                return;
+                
             }
 
-        }   
+        //}   
         
     });
 
@@ -408,16 +492,16 @@ init();
 
 function checkCollision(obs_bounding, player_bounding) {
     // Check if the box intersects with the sphere's bounding sphere
-    console.log("Box bounding:", obs_bounding);
-    console.log("Ball bounding:", player_bounding);
+    //console.log("Box bounding:", obs_bounding);
+    //console.log("Ball bounding:", player_bounding);
 
     // if (currentLevel != 4)
         if (obs_bounding.intersectsSphere(player_bounding)) {
-            console.log("The box and sphere are colliding!");
+            //console.log("The box and sphere are colliding!");
             return true;
         }
         else{
-            console.log("The box and sphere are not colliding!");
+            //console.log("The box and sphere are not colliding!");
             return false;
         }
     // {

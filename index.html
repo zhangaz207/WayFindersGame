@@ -12,11 +12,28 @@
 				transform: translate(-50%, -50%);
 				text-align: center;
         	}
+			#winScreen {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				text-align: center;
+				display:none
+        	}
+			#loseScreen {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				text-align: center;
+				display:none
+        	}
         	button {
 				font-size: 24px;
 				padding: 10px 20px;
 				margin: 10px;
 				cursor: pointer;
+				
         	}
 		</style>
 	</head> 
@@ -29,8 +46,20 @@
 			<button id="level4">Level 4</button>
 			<button id="level5">Level 5</button>
 		</div>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-		<script type="module" src="/main.js"></script>
+		<div id="winScreen">
+			<h1>You Win</h1>
+			<button id="HomeWin">Home</button>
+			<button id="RestartWin">Restart</button>
+		</div>
+		<div id="loseScreen">
+			<h1>You Lose</h1>
+			<button id="HomeLose">Home</button>
+			<button id="RestartLose">Restart</button>
+			<button id="RestartLose1">Restart</button>
+		</div>
 	</body>
-</html>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+	<script type="module" src="/main.js"></script>
+	</html>

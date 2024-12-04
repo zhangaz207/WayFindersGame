@@ -222,9 +222,13 @@ function loadLevel(level) {
                 obstacles = newObstacles;
             });
             break;
-        //case 3:
-        //     import('./levels/level3.js').then(level3 => level3.setupLevel(scene, camera));
-        //     break;
+        case 3:
+            import('./level3.js').then(level3 => {
+                const { player: newPlayer, obstacles: newObstacles } = level3.setUpLevel(scene)
+                player = newPlayer;
+                obstacles = newObstacles;
+            });
+            break;
         case 4:
             // import('./level4.js').then(level4 => {
             //     const { player: newPlayer, obstacles: newObstacles } = level4.setUpLevel(scene)
@@ -292,8 +296,9 @@ function animate() {
     obstacles.forEach(function (obs,index){
         let currentdepth = new THREE.Vector4();
         currentdepth.setFromMatrixPosition(obs.mesh.matrixWorld);
-        //console.log('currentdepth',currentdepth.z);
+        console.log('currentdepth',currentdepth.z);
         
+
         if (currentdepth.z >=45) {
             obs.mesh.visible =false;
         }
@@ -306,6 +311,14 @@ function animate() {
 
         if (currentdepth.z < -12) {
             obs.mesh.visible =false;
+        }
+
+        if (obs.vis) {
+            if (currentdepth.z <=25) {
+                console.log("now")
+                obs.mesh.visible =false;
+            }
+    
         }
         // if (!obstructed){
             
@@ -351,7 +364,9 @@ function animate() {
             //console.log(obs.mesh.userData.obb)
 
             //const bounding = new THREE.Box3().setFromObject(obs.mesh);
-        
+
+
+
             if (checkCollision(obs.mesh.userData.obb, player_bounding)){
                 
                 scene.background = null;

@@ -186,7 +186,7 @@ export function setUpLevel(scene) {
             x: x_i, 
             y: y_i, 
             z: z_i, 
-            tranformations: transforms
+            tranformations: transforms,
         });
     }
     

@@ -231,42 +231,42 @@ export function setUpLevel(scene) {
 
 
 
-    // //good ones //weird teleportation //doesnt apply forward moving transformation
-    //   createBoxObstacle(0,-32,30,64,8,6,[addOscillatingTranslation(10,0,3,5,0)]);
-    //   createBoxObstacle(0,-24,36,64,8,6,[addOscillatingTranslation(10,0,3,4,0)]);
-    //   createBoxObstacle(0,-16,42,64,8,6,[addOscillatingTranslation(10,0,3,3,0)]);
-    //   createBoxObstacle(0,-8,48,64,8,6, [addOscillatingTranslation(10,0,3,2,0)]);
-    //  // createBoxObstacle(0,0,54,64,8,6,  [addOscillatingTranslation(10,0,10,1,0)]);
+    //good ones //weird teleportation //doesnt apply forward moving transformation
+      createBoxObstacle(0,-32,30,64,8,6,[addOscillatingTranslation(10,0,3,5,0)]);
+      createBoxObstacle(0,-24,36,64,8,6,[addOscillatingTranslation(10,0,3,4,0)]);
+      createBoxObstacle(0,-16,42,64,8,6,[addOscillatingTranslation(10,0,3,3,0)]);
+      createBoxObstacle(0,-8,48,64,8,6, [addOscillatingTranslation(10,0,3,2,0)]);
+     // createBoxObstacle(0,0,54,64,8,6,  [addOscillatingTranslation(10,0,10,1,0)]);
 
-    //   createBoxObstacle(0,32,30,64,8,6,[addOscillatingTranslation(10,0,3,5,0)]);
-    //   createBoxObstacle(0,24,36,64,8,6,[addOscillatingTranslation(10,0,3,4,0)]);
-    //   createBoxObstacle(0,16,42,64,8,6,[addOscillatingTranslation(10,0,3,3,0)]);
-    //   createBoxObstacle(0,8,48,64,8,6, [addOscillatingTranslation(10,0,3,2,0)]);
-    //   //createBoxObstacle(0,0,54,64,8,6,  [addOscillatingTranslation(10,0,10,1,0)]);
+      createBoxObstacle(0,32,30,64,8,6,[addOscillatingTranslation(10,0,3,5,0)]);
+      createBoxObstacle(0,24,36,64,8,6,[addOscillatingTranslation(10,0,3,4,0)]);
+      createBoxObstacle(0,16,42,64,8,6,[addOscillatingTranslation(10,0,3,3,0)]);
+      createBoxObstacle(0,8,48,64,8,6, [addOscillatingTranslation(10,0,3,2,0)]);
+      //createBoxObstacle(0,0,54,64,8,6,  [addOscillatingTranslation(10,0,10,1,0)]);
     
-    // //set 2
-    // createBoxObstacle(-12,-12,65,5,3,2,[addRotationZ(-2)]);
-    // createBoxObstacle(12,-12,65,5,3,2,[addRotationZ(-2)]);
-    // createBoxObstacle(-12,12,65,5,3,2,[addRotationZ(-2)]);
-    // createBoxObstacle(12,12,65,5,3,2,[addRotationZ(-2)]);
+    //set 2
+    createBoxObstacle(-12,-12,70,5,3,2,[addRotationZ(-2)]);
+    createBoxObstacle(12,-12,70,5,3,2,[addRotationZ(-2)]);
+    createBoxObstacle(-12,12,65,5,3,2,[addRotationZ(-2)]);
+    createBoxObstacle(12,12,70,5,3,2,[addRotationZ(-2)]);
 
-    // createBoxObstacle(-6,-6,65,5,3,2,[addRotationZ(1),addScaling(1.5, 1, 1)]);
-    // createBoxObstacle(6,-6,65,5,3,2,[addRotationZ(1),addScaling(1.5, 1, 1)]);
-    // createBoxObstacle(-6,6,65,5,3,2,[addRotationZ(1),addScaling(1.5, 1, 1)]);
-    // createBoxObstacle(6,6,65,5,3,2,[addRotationZ(1),addScaling(1.5, 1, 1)]);
-    // createBoxObstacle(0,0,65,4,4,2,[addRotationZ(5),addScaling(1, 1, 1)]);
+    createBoxObstacle(-6,-6,70,5,3,2,[addRotationZ(1),addScaling(1.5, 1, 1)]);
+    createBoxObstacle(6,-6,70,5,3,2,[addRotationZ(1),addScaling(1.5, 1, 1)]);
+    createBoxObstacle(-6,6,70,5,3,2,[addRotationZ(1),addScaling(1.5, 1, 1)]);
+    createBoxObstacle(6,6,70,5,3,2,[addRotationZ(1),addScaling(1.5, 1, 1)]);
+    createBoxObstacle(0,0,70,4,4,2,[addRotationZ(5),addScaling(1, 1, 1)]);
 
-    // //set 3
-    // //regular trnaslation brokjen
-    // createBoxObstacle(2.5,2.5,75,5,5,2,[addRotationZ(0.5), addScaling(4,2,0)]);
-    // createBoxObstacle(-2.5,-2.5,75,5,5,2,[addRotationZ(0.5), addScaling(3,1.5,0)]);
-    // createBoxObstacle(-2.5,2.5,75,5,5,2,[addRotationZ(0.5), addScaling(1.5,1,0)]);
-    // createBoxObstacle(2.5,-2.5,75,5,5,2,[addRotationZ(0.5), addScaling(1.5,1,0)]);
+    //set 3
+    //regular trnaslation brokjen
+    createBoxObstacle(2.5,2.5,85,5,5,2,[addRotationZ(0.5), addScaling(4,2,0)]);
+    createBoxObstacle(-2.5,-2.5,85,5,5,2,[addRotationZ(0.5), addScaling(3,1.5,0)]);
+    createBoxObstacle(-2.5,2.5,85,5,5,2,[addRotationZ(0.5), addScaling(1.5,1,0)]);
+    createBoxObstacle(2.5,-2.5,85,5,5,2,[addRotationZ(0.5), addScaling(1.5,1,0)]);
 
 
     //set 4
 
-    let mydist = 50;
+    let mydist = -15;
 
     createBoxObstacle(8,-8,85-mydist,16,16,5,[addOscillatingTranslation(5,0,0,7,0)]);
     createBoxObstacle(8,8,85-mydist,16,16,5,[addOscillatingTranslation(5,0,0,7,0 )]);
@@ -286,29 +286,17 @@ export function setUpLevel(scene) {
     createBoxObstacle(-8,-8,175-mydist,16,16,5,[addOscillatingTranslation(5,0,0,7,0)]);
     createBoxObstacle(8,-8,175-mydist,16,16,5,[addOscillatingTranslation(5,0,0,7,0)]);
 
-    // createBoxObstacle(10,0,30,10,3,2,[addScaling(4, 2, 1)]);
-    // createBoxObstacle(-6,0,30,10,3,2,[addScaling(4, 2, 1)]);
-    
-    // createBoxObstacle(8,0,40,10,3,2,[addScaling(4, 2, 1)]);
-    // createBoxObstacle(-9,0,40,10,3,2,[addScaling(4, 2, 1)]);
-    
-    // createBoxObstacle(10,0,50,6,4,2,[]);
-    // createBoxObstacle(1,-7,50,6,4,2,[]);
-    // createBoxObstacle(5,6,50,6,4,2,[]);
-    // createBoxObstacle(7,-4,50,6,4,2,[]);
-    // createBoxObstacle(9,9,50,6,4,2,[]);
-    // createBoxObstacle(-9,9,50,6,4,2,[]);
-    // createBoxObstacle(8,-9,50,6,4,2,[]);
-    // createBoxObstacle(-8,-7,50,6,4,2,[]);
-    // createBoxObstacle(-8,4,50,6,4,2,[]);
-    // createBoxObstacle(0,0,50,6,4,2,[]);
-    
-    // createBoxObstacle(-10,0,65,16,32,2,[addOscillatingTranslation(4, 8, 0, 0, -10)]);
-    // createBoxObstacle(10,0,65,16,32,2,[addOscillatingTranslation(4, 8, 0, 0, -10)]);
-    
-    // createBoxObstacle(8,0,75,5,3,2,[addRotationZ(1), addOscillatingTranslation(4, 10, 0, 0, -10), addScaling(4, 2, 1)]);
-    // createBoxObstacle(-8,0,75,5,3,2,[addRotationZ(1), addOscillatingTranslation(4, 10, 0, 0, -10), addScaling(4, 2, 1)]);
-    
+
+    //set 5
+    createBoxObstacle(-16,0,190-mydist,32,64,5,[]);
+    createBoxObstacle(-16,0,220-mydist,32,64,5,[]);
+    //createBoxObstacle(-16,0,250-mydist,32,64,5,[]);
+    //createBoxObstacle(-16,0,280-mydist,32,64,5,[]);
+
+    createBoxObstacle(10,-32,205-mydist,20,5,30,[addOscillatingTranslation(8,0,100,0,-50)]);
+    //createBoxObstacle(10,-16,220-mydist,16,25,60,[addOscillatingTranslation(5,0,10,0,0)]);
+
+
     return {player, obstacles}; 
     
 }    

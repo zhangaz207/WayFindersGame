@@ -127,6 +127,9 @@ export function setUpLevel(scene) {
             `;
         }
     }
+    
+    
+
 
     const player_geom = new THREE.SphereGeometry(1, 64, 64);
     const player_material = new THREE.MeshPhongMaterial({

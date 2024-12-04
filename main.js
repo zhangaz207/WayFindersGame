@@ -163,6 +163,7 @@ function loadLevel(level) {
     document.body.appendChild(renderer.domElement);
 
     currentLevel = level;
+    isGameActive = true;
 
     //const scenebackgroundtexture = new THREE.TextureLoader().load('assets/text.png');
     const loader = new THREE.CubeTextureLoader();

@@ -262,7 +262,7 @@ export function setUpLevel(scene) {
     player.geometry.computeBoundingSphere();
     scene.add(player);
 
-    function createBoxObstacle(x_i, y_i, z_i, length, width, height, transforms, disapearing =false){
+    function createBoxObstacle(x_i, y_i, z_i, length, width, height, transforms, disapearing =false, shrink =false, scale =false, speedobs =false){
         const box_ob_geometry = new THREE.BoxGeometry(length, width, height);
         const size = new THREE.Vector3(length, width, height);
     
@@ -272,7 +272,11 @@ export function setUpLevel(scene) {
         // color: 0x48ff00, flatShading : true
         // });
         
-        const box_ob_texture = new THREE.TextureLoader().load('assets/smallmoontexture.png');
+
+
+        const box_ob_texture=new THREE.TextureLoader().load('assets/smallmoontexture.png');
+
+
         box_ob_texture.minFilter = THREE.LinearMipMapLinearFilter;
     
         const box_ob_material = new THREE.MeshStandardMaterial({
@@ -292,8 +296,18 @@ export function setUpLevel(scene) {
         //     vertexShader: box_ob_shader.vertexShader(),
         //     fragmentShader: box_ob_shader.fragmentShader(),
         // });
-    
-        const box_ob_mesh = new THREE.Mesh(box_ob_geometry, box_ob_material);
+
+
+        
+        const buffmaterial = new THREE.MeshPhongMaterial({color: 0x00FF00 });
+        let box_ob_mesh;
+        if (shrink ==false && scale ==false && speedobs ==false ) {
+             box_ob_mesh= new THREE.Mesh(box_ob_geometry, box_ob_material);
+        }
+        else {
+            box_ob_mesh = new THREE.Mesh(box_ob_geometry, buffmaterial);
+
+        }
         //box_ob_mesh.castShadow = true;
         //box_ob_mesh.receiveShadow = true;
 
@@ -308,7 +322,10 @@ export function setUpLevel(scene) {
             y: y_i, 
             z: z_i, 
             tranformations: transforms,
-            vis : disapearing
+            vis : disapearing,
+            small: shrink,
+            big : scale,
+            fast : speedobs
         });
     }
     
@@ -350,21 +367,39 @@ export function setUpLevel(scene) {
         return {tr_type: scaling, period, speed, adjust};
     }
     
+    const sizeofbuff=3;
+    createBoxObstacle(0,10,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,true);
+    createBoxObstacle(0,-10,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,true);
+    createBoxObstacle(0,0,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,false,true);
+    createBoxObstacle(10,10,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,true);
+    createBoxObstacle(-10,-10,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,true);
+    createBoxObstacle(10,-10,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,false,true);
+    createBoxObstacle(-10,10,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,true);
+    createBoxObstacle(10,0,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,true);
+    createBoxObstacle(-10,0,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,false,true);
 
-
+    createBoxObstacle(0,10,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,true);
+    createBoxObstacle(0,-10,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,true);
+    createBoxObstacle(0,0,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,false,true);
+    createBoxObstacle(10,10,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,true);
+    createBoxObstacle(-10,-10,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,true);
+    createBoxObstacle(10,-10,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,false,true);
+    createBoxObstacle(-10,10,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,true);
+    createBoxObstacle(10,0,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,true);
+    createBoxObstacle(-10,0,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,false,true);
 
     //good ones //weird teleportation //doesnt apply forward moving transformation
-      createBoxObstacle(0,-32,30,64,8,6,[addOscillatingTranslation(10,0,3,5,0)],true);
-      createBoxObstacle(0,-24,36,64,8,6,[addOscillatingTranslation(10,0,3,4,0)],true);
-      createBoxObstacle(0,-16,42,64,8,6,[addOscillatingTranslation(10,0,3,3,0)],true);
-      createBoxObstacle(0,-8,48,64,8,6, [addOscillatingTranslation(10,0,3,2,0)],true);
-     // createBoxObstacle(0,0,54,64,8,6,  [addOscillatingTranslation(10,0,10,1,0)]);
+    //   createBoxObstacle(0,-32,30,64,8,6,[addOscillatingTranslation(10,0,3,5,0)],true);
+    //   createBoxObstacle(0,-24,36,64,8,6,[addOscillatingTranslation(10,0,3,4,0)],true);
+    //   createBoxObstacle(0,-16,42,64,8,6,[addOscillatingTranslation(10,0,3,3,0)],true);
+    //   createBoxObstacle(0,-8,48,64,8,6, [addOscillatingTranslation(10,0,3,2,0)],true);
+    //  // createBoxObstacle(0,0,54,64,8,6,  [addOscillatingTranslation(10,0,10,1,0)]);
 
-      createBoxObstacle(0,32,30,64,8,6,[addOscillatingTranslation(10,0,3,5,0)],true);
-      createBoxObstacle(0,24,36,64,8,6,[addOscillatingTranslation(10,0,3,4,0)],true);
-      createBoxObstacle(0,16,42,64,8,6,[addOscillatingTranslation(10,0,3,3,0)],true);
-      createBoxObstacle(0,8,48,64,8,6, [addOscillatingTranslation(10,0,3,2,0)],true);
-      //createBoxObstacle(0,0,54,64,8,6,  [addOscillatingTranslation(10,0,10,1,0)]);
+    //   createBoxObstacle(0,32,30,64,8,6,[addOscillatingTranslation(10,0,3,5,0)],true);
+    //   createBoxObstacle(0,24,36,64,8,6,[addOscillatingTranslation(10,0,3,4,0)],true);
+    //   createBoxObstacle(0,16,42,64,8,6,[addOscillatingTranslation(10,0,3,3,0)],true);
+    //   createBoxObstacle(0,8,48,64,8,6, [addOscillatingTranslation(10,0,3,2,0)],true);
+    //   //createBoxObstacle(0,0,54,64,8,6,  [addOscillatingTranslation(10,0,10,1,0)]);
     
     //set 2
     createBoxObstacle(-12,-12,70,5,3,2,[addRotationZ(-2)]);

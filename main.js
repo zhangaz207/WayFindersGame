@@ -145,10 +145,10 @@ function showHomeScreen() {
     document.getElementById('winScreen5').style.display = 'none';
 
     document.getElementById('collectScoreBoard').style.display = 'none';
-    document.getElementById('levelContainer').style.display = 'none';
+    document.getElementById('levelContainer').style.display = '';
 
-    document.getElementById('startButton').addEventListener('click', () => loadLevel(1));
-    document.getElementById('showLevels').addEventListener('click', () => cheatLevels());
+    // document.getElementById('startButton').addEventListener('click', () => loadLevel(1));
+    // document.getElementById('showLevels').addEventListener('click', () => cheatLevels());
 
     document.getElementById('level1').addEventListener('click', () => loadLevel(1));
     document.getElementById('level2').addEventListener('click', () => loadLevel(2));
@@ -157,10 +157,10 @@ function showHomeScreen() {
     document.getElementById('level5').addEventListener('click', () => loadLevel(5));
 }
   
-function cheatLevels() {
-    document.getElementById('levelContainer').style.display = '';
-    document.getElementById('showLevels').style.display = 'none';
-}
+// function cheatLevels() {
+//     document.getElementById('levelContainer').style.display = '';
+//     document.getElementById('showLevels').style.display = 'none';
+// }
 
 function showWinScreen() {
     document.getElementById('winScreen').style.display = '';
@@ -535,6 +535,7 @@ function animate() {
                     }
                     else {
                         scene.background = null;    
+                        showLoseScreen();
                         while (scene.children.length > 0) {
                             console.log(scene.children.length)
                             const object = scene.children[0];
@@ -553,7 +554,6 @@ function animate() {
                         }
                         isGameActive = false;
                         document.getElementById("level").textContent = levelScore;
-                        showLoseScreen();
                         return; 
                     }
                 }   

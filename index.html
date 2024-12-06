@@ -36,6 +36,19 @@
             align-items: center;
             height: 100vh;
 		}
+        #winScreen{
+			background-color: #1a1a1a;
+            color: white;
+            font-family: 'Pixeloid Sans', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around; 
+            align-items: center;
+            height: 100vh;
+		}
 
         .top-score {
             position: absolute;
@@ -158,6 +171,11 @@
             font-size: 60px;
             animation: flashInOut 3s infinite ease-in-out;
         }
+        #level-complete {
+            color: rgb(0, 128, 43);
+            font-size: 60px;
+            animation: flashInOut 3s infinite ease-in-out;
+        }
         #level-message {
             color: lightgreen;
             font-size: 40px;
@@ -198,9 +216,8 @@
 		</div>	
 	</div>
 	<div id="winScreen">
-		<h1>You Win</h1>
-		<button id="HomeWin">Home</button>
-		<button id="RestartWin">Restart</button>
+		<div id="level-complete">Level Complete</div>
+		<button id="restart-button" onclick="restartGame()">Menu</button>
 	</div>
     <div id="loseScreen"> 
 		<img src="https://media.istockphoto.com/id/1040956110/vector/pixel-skull-and-crossbones-icon-vector-illustration.jpg?s=612x612&w=0&k=20&c=2SqrmTbeOeOT7wq6uWc-X_QyBJ0VAIdE-cRiuhUoPow=" alt="Pixel Skull Icon" width="150" height="150">
@@ -208,6 +225,7 @@
 		<!-- <div id="level-message">Good Job! You made it to level: <span id="level"> 5</span></div> -->
 		<button id="restart-button" onclick="restartGame()">Menu</button>
 	</div>
+    
     <script>
         // Placeholder for the top score variable
         let topScore = 100; // Example score, replace with dynamic value as needed

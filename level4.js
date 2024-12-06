@@ -146,7 +146,7 @@ export function setUpLevel(scene) {
     player.position.set(0,5,0);
 
     
-    function createBoxObstacle(x_i, y_i, z_i, length, width, height, transforms){
+    function createBoxObstacle(x_i, y_i, z_i, length, width, height, transforms, win = false){
         const box_ob_geometry = new THREE.BoxGeometry(length, width, height);
         const size = new THREE.Vector3(length, width, height);
     
@@ -158,6 +158,7 @@ export function setUpLevel(scene) {
         
         const box_ob_texture = new THREE.TextureLoader().load('assets/smallmoontexture.png');
         box_ob_texture.minFilter = THREE.LinearMipMapLinearFilter;
+
     
         const box_ob_material = new THREE.MeshStandardMaterial({
             bumpMap : box_ob_texture,
@@ -170,13 +171,16 @@ export function setUpLevel(scene) {
         box_ob_mesh.visible=true;
         scene.add(box_ob_mesh);
         box_ob_mesh.userData.obb = new OBB();
+
+
         
         obstacles.push({
             mesh: box_ob_mesh, 
             x: x_i, 
             y: y_i, 
             z: z_i, 
-            tranformations: transforms
+            tranformations: transforms,
+            isWin: win
         });
     }
     
@@ -226,25 +230,27 @@ export function setUpLevel(scene) {
     // createBoxObstacle(4,4.0,44,2,2,10,[addTranslation(0,0,-20)]);
     // createBoxObstacle(6,3.5,46,2,2,10,[addTranslation(0,0,-20)]);
 
-    createBoxObstacle(5,0,30,10,10,2,[addTranslation(0,0,-20)]);
-    createBoxObstacle(5,0,45,10,10,2,[addTranslation(0,0,-20)]);
-    createBoxObstacle(-5,0,60,10,10,2,[addTranslation(0,0,-20)]);
-    createBoxObstacle(-5,4,52,10,2,14,[addTranslation(0,0,-20)]);
-    createBoxObstacle(5,0,75,10,10,2,[addTranslation(0,0,-20)]);
-    createBoxObstacle(0,-5,90,10,10,2,[addTranslation(0,0,-20)]);
+    // createBoxObstacle(5,0,30,10,10,2,[addTranslation(0,0,-20)]);
+    // createBoxObstacle(5,0,45,10,10,2,[addTranslation(0,0,-20)]);
+    // createBoxObstacle(-5,0,60,10,10,2,[addTranslation(0,0,-20)]);
+    // createBoxObstacle(-5,4,52,10,2,14,[addTranslation(0,0,-20)]);
+    // createBoxObstacle(5,0,75,10,10,2,[addTranslation(0,0,-20)]);
+    // createBoxObstacle(0,-5,90,10,10,2,[addTranslation(0,0,-20)]);
 
 
-    createBoxObstacle(-5,110,0,10,10,2,[addTranslation(0,-20, 5)]);
-    createBoxObstacle(5,130,0,10,10,2,[addTranslation(0,-20, 5)]);
-    createBoxObstacle(-60,150,0,10,10,2,[addTranslation(7,-20, 5)]);
-    createBoxObstacle(-5,170,0,10,10,2,[addTranslation(0,-20, 5)]);
-    createBoxObstacle(5,190,0,10,10,2,[addTranslation(0,-20, 5)]);
+    // createBoxObstacle(-5,110,0,10,10,2,[addTranslation(0,-20, 5)]);
+    // createBoxObstacle(5,130,0,10,10,2,[addTranslation(0,-20, 5)]);
+    // createBoxObstacle(-60,150,0,10,10,2,[addTranslation(7,-20, 5)]);
+    // createBoxObstacle(-5,170,0,10,10,2,[addTranslation(0,-20, 5)]);
+    // createBoxObstacle(5,190,0,10,10,2,[addTranslation(0,-20, 5)]);
     
-    createBoxObstacle(0,0,270,15,4,2,[addRotationZ(2), addTranslation(0,0, -20)]);
-    createBoxObstacle(0,0,290,15,4,2,[addRotationZ(-2), addTranslation(0,0, -20)]);
-    createBoxObstacle(0,0,310,15,4,2,[addRotationZ(2), addTranslation(0,0, -20)]);
-    createBoxObstacle(0,0,330,15,4,2,[addRotationZ(2), addTranslation(0,0, -20)]);
-    createBoxObstacle(0,0,120,15,2,30,[addOscillatingRotation(2)]);
+    // createBoxObstacle(0,0,270,15,4,2,[addRotationZ(2), addTranslation(0,0, -20)]);
+    // createBoxObstacle(0,0,290,15,4,2,[addRotationZ(-2), addTranslation(0,0, -20)]);
+    // createBoxObstacle(0,0,310,15,4,2,[addRotationZ(2), addTranslation(0,0, -20)]);
+    // createBoxObstacle(0,0,330,15,4,2,[addRotationZ(2), addTranslation(0,0, -20)]);
+    // createBoxObstacle(0,0,120,15,2,30,[addOscillatingRotation(2)]);
+
+    createBoxObstacle(0,0,350,100,100,1,[addTranslation(0,0, -20)], true);
 
 
     // createBoxObstacle(0,0,290,10,2,2,[addTranslation(0,-20, 5)]);

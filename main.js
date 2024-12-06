@@ -131,7 +131,10 @@ function showHomeScreen() {
 }
   
 function showWinScreen() {
+    
     document.getElementById('winScreen').style.display = '';
+    document.getElementById('restart-button').addEventListener('click', () => reloadFunct());
+    removeEventListeners();
 }
   
 function showLoseScreen() {
@@ -384,7 +387,7 @@ function animate() {
             obs.mesh.visible =false;
         }
 
-        if(currentdepth.z <45 && currentdepth.z >=-12 && !obs.mesh.visible) {
+        if(currentdepth.z <45 && currentdepth.z >=-12 && !obs.mesh.visible && !obs.isWin) {
             obs.mesh.castShadow=true;
             obs.mesh.visible=true;
             obs.mesh.receiveShadow =true;
@@ -458,6 +461,11 @@ function animate() {
 
             if (checkCollision(obs.mesh.userData.obb, player_bounding)){
                 
+                if(obs.isWin){
+                    isGameActive = false;
+                    showWinScreen();
+                    return;
+                }
 
 
                 if(obs.small) {

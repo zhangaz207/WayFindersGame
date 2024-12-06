@@ -127,14 +127,16 @@ export function setUpLevel(scene) {
 
     const player_geom = new THREE.SphereGeometry(1, 64, 64);
 
-    const player_material = new THREE.MeshPhongMaterial({
-        color: 0xff0000
-    });
-
-// const newtexturemat = new THREE.TextureLoader().load('assets/glass.png');
-     // const player_material = new THREE.ShaderMaterial({
-    //     map : newtexturemat,
+    // const player_material = new THREE.MeshPhongMaterial({
+    //     color: 0xff0000
     // });
+
+    const newtexturemat = new THREE.TextureLoader().load('assets/ballpattern.png');
+    newtexturemat.minFilter = THREE.LinearMipMapLinearFilter;
+
+    const player_material = new THREE.MeshStandardMaterial({
+        map : newtexturemat,
+        });
 
     const player1 = new THREE.Mesh(player_geom, player_material);
     player1.castShadow = true;
@@ -142,7 +144,7 @@ export function setUpLevel(scene) {
     scene.add(player1);
     player.push(player1);
 
-    function createBoxObstacle(x_i, y_i, z_i, length, width, height, transforms){
+    function createBoxObstacle(x_i, y_i, z_i, length, width, height, transforms,win =false){
         const box_ob_geometry = new THREE.BoxGeometry(length, width, height);
         const size = new THREE.Vector3(length, width, height);
     
@@ -189,6 +191,7 @@ export function setUpLevel(scene) {
             y: y_i, 
             z: z_i, 
             tranformations: transforms,
+            isWin:win
         });
     }
     
@@ -296,6 +299,7 @@ export function setUpLevel(scene) {
     //createBoxObstacle(-16,0,280-mydist,32,64,5,[]);
 
     createBoxObstacle(10,-32,205-mydist,20,5,30,[addOscillatingTranslation(8,0,100,0,-50)]);
+    createBoxObstacle(0,0,230-mydist,64,64,30,[],false);
     //createBoxObstacle(10,-16,220-mydist,16,25,60,[addOscillatingTranslation(5,0,10,0,0)]);
 
 

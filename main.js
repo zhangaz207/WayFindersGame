@@ -155,8 +155,8 @@ function removeEventListeners(){
     document.getElementById('level3').removeEventListener('click', () => loadLevel(3));
     document.getElementById('level4').removeEventListener('click', () => loadLevel(4));
     //document.getElementById('HomeLose').removeEventListener('click', () => showHomeScreen());
-    document.getElementById('restart-button').removeEventListener('click', () => loadLevel(currentLevel));
-
+    document.getElementById('restart-button-win').removeEventListener('click', () => loadLevel(currentLevel));
+    document.getElementById('restart-button-lose').removeEventListener('click', () => loadLevel(currentLevel));
 
 }
 function clearScene() {
@@ -214,11 +214,7 @@ function loadLevel(level) {
     // scene.add(balllight);
 
     clock = new THREE.Clock();
-
-    // if (level == 4) {
-    //     pivot.add(player);
-    //     scene.add(pivot);
-    // }   
+  
 
     switch (level) {
         case 1:
@@ -298,8 +294,9 @@ function animate() {
     if (!isGameActive)
         return;
     
-    let player_transform = new THREE.Matrix4();
-    let translateplayer = translationMatrix(0,5,0);
+    const player_transform = new THREE.Matrix4();
+    const translateplayer1 = translationMatrix(0,8,0);
+    const translateplayer2 = translationMatrix(0,-16,0);
 
     controls.update();
     requestAnimationFrame(animate);
@@ -318,33 +315,32 @@ function animate() {
             temp =-1/5 *period10+2;
         }
 
-
         colorchange=rgbToHex(255,255*temp, 255*temp);
-        player.material.color.set(colorchange);
+        player[0].material.color.set(colorchange);
     }
 
     // if (!obstructed){
         if (currentLevel != 4) {
             if (moveLeft) {
-                if (player.position.x < 15)
-                    player.position.x += speed;
+                if (player[0].position.x < 15)
+                    player[0].position.x += speed;
             }
             if (moveRight) {
-                if (player.position.x > -15)
-                    player.position.x -= speed;
+                if (player[0].position.x > -15)
+                    player[0].position.x -= speed;
             }
             if (moveUp) {
-                if (player.position.y < 15)
-                    player.position.y += speed;
+                if (player[0].position.y < 15)
+                    player[0].position.y += speed;
             }
             if (moveDown) {
-                if (player.position.y > -15)
-                    player.position.y -= speed;
+                if (player[0].position.y > -15)
+                    player[0].position.y -= speed;
             }
         }
         else{
-            let rotateccw = rotationMatrixZ(-3*player_time_ccw);
-            let rotatecw = rotationMatrixZ(3*player_time_cw);
+            let rotateccw = rotationMatrixZ(-5*player_time_ccw);
+            let rotatecw = rotationMatrixZ(5*player_time_cw);
             
             if (moveLeft) {
                 player_time_ccw += delta;
@@ -354,26 +350,18 @@ function animate() {
             }
             player_transform.multiply(rotateccw);
             player_transform.multiply(rotatecw);
-            player_transform.multiply(translateplayer);
-            player.matrix.copy(player_transform);
-            player.matrixAutoUpdate = false;
+            player_transform.multiply(translateplayer1);
+            
+            player[0].matrix.copy(player_transform);
+
+            player_transform.multiply(translateplayer2);
+
+            player[1].matrix.copy(player_transform);
+            player[0].matrixAutoUpdate = false;
+            player[1].matrixAutoUpdate = false;
             
         }
     //}
-
-
-    let player_bounding;
-    //if (currentLevel != 4){
-
-        player_bounding = player.geometry.boundingSphere.clone();
-        player_bounding.center.applyMatrix4(player.matrixWorld);
-    // }
-    // else{
-    //     player.userData.obb = new OBB();
-    //     player_bounding = player.userData.obb.clone();
-    //     player_bounding.applyMatrix4(player.matrixWorld);
-    // }
-
 
 
     
@@ -457,86 +445,87 @@ function animate() {
 
             //const bounding = new THREE.Box3().setFromObject(obs.mesh);
 
+            player.forEach(function(p){
 
+                let player_bounding;
+                player_bounding = p.geometry.boundingSphere.clone();
+                player_bounding.center.applyMatrix4(p.matrixWorld);
 
-            if (checkCollision(obs.mesh.userData.obb, player_bounding)){
+                if (checkCollision(obs.mesh.userData.obb, player_bounding)){
                 
-                if(obs.isWin){
-                    isGameActive = false;
-                    showWinScreen();
-                    return;
-                }
-
-
-                if(obs.small) {
-                    player.scale.x*=0.99;
-                    player.scale.y*=0.99;
-                    player.scale.z*=0.99;
-
-                    obs.mesh.visibile =false;
-                    obs.vis=true;
-                    buffed=true;
-                    return;
-                }
-                if(obs.big) {
-                    player.scale.x*=1.01;
-                    player.scale.y*=1.01;
-                    player.scale.z*=1.01;
-
-                    obs.mesh.visibile =false;
-                    obs.vis=true;
-                    buffed=true;
-
-                    return;
-                }
-                if(obs.fast) {
-                    speedofobst*=2;
-                    obs.mesh.visibile =false;
-                    obs.vis=true;
-                    buffed=true;
-
-                    return;
-                }
-
-                scene.background = null;
-                // for(var i = scene.children.length - 1; i >= 0; i--) { 
-                //     obj = scene.children[i];
-                //     scene.remove(obj); 
-                // }
-                // while (scene.children.length > 0){
-                //     scene.remove(scene.children[0]);
-                // }
-                // if (renderer && renderer.domElement && document.body.contains(renderer.domElement)) {
-                //     document.body.removeChild(renderer.domElement);
-                //  }
-
-                // while (scene.children.length > 0) {
-                //     console.log(scene.children.length)
-                //     const object = scene.children[0];
-                //     scene.remove(object);
-                //     if (object instanceof THREE.Mesh) {
-                //         object.geometry.dispose();
-                       
-                //         object.material.dispose();
+                    if(obs.isWin){
+                        isGameActive = false;
+                        showWinScreen();
+                        return;
+                    }
     
-                //         object.texture.dispose();
-                //     }
-            
-                    
-                // }
-
-                // if (document.body.contains(renderer.domElement)) {
-                //     document.body.removeChild(renderer.domElement);
-                // }
-                
-                isGameActive = false;
-                showLoseScreen();
-                return;
-                
-            }
-
-        // }   
+                    if(obs.small) {
+                        player.scale.x*=0.99;
+                        player.scale.y*=0.99;
+                        player.scale.z*=0.99;
+    
+                        obs.mesh.visibile =false;
+                        obs.vis=true;
+                        buffed=true;
+                        return;
+                    }
+                    if(obs.big) {
+                        player.scale.x*=1.01;
+                        player.scale.y*=1.01;
+                        player.scale.z*=1.01;
+    
+                        obs.mesh.visibile =false;
+                        obs.vis=true;
+                        buffed=true;
+    
+                        return;
+                    }
+                    if(obs.fast) {
+                        speedofobst*=2;
+                        obs.mesh.visibile =false;
+                        obs.vis=true;
+                        buffed=true;
+    
+                        return;
+                    }
+    
+                    scene.background = null;
+                    // for(var i = scene.children.length - 1; i >= 0; i--) { 
+                    //     obj = scene.children[i];
+                    //     scene.remove(obj); 
+                    // }
+                    // while (scene.children.length > 0){
+                    //     scene.remove(scene.children[0]);
+                    // }
+                    // if (renderer && renderer.domElement && document.body.contains(renderer.domElement)) {
+                    //     document.body.removeChild(renderer.domElement);
+                    //  }
+    
+                    // while (scene.children.length > 0) {
+                    //     console.log(scene.children.length)
+                    //     const object = scene.children[0];
+                    //     scene.remove(object);
+                    //     if (object instanceof THREE.Mesh) {
+                    //         object.geometry.dispose();
+                           
+                    //         object.material.dispose();
         
+                    //         object.texture.dispose();
+                    //     }
+                
+                        
+                    // }
+    
+                    // if (document.body.contains(renderer.domElement)) {
+                    //     document.body.removeChild(renderer.domElement);
+                    // }
+                    
+                    isGameActive = false;
+                    showLoseScreen();
+                    return;
+                    
+                }
+            });   
     });
 
     // let cameraTransform = new THREE.Matrix4();

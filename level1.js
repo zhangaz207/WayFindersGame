@@ -4,7 +4,7 @@ import { OBB } from 'three/examples/jsm/Addons.js';
 
 export function setUpLevel(scene) {
 
-    let player;
+    let player = [];
     let obstacles = [];
 
     // while (scene.children.length > 0) {
@@ -141,10 +141,11 @@ export function setUpLevel(scene) {
     //     map : newtexturemat,
     // });
 
-    player = new THREE.Mesh(player_geom, player_material);
-    player.castShadow =true;
-    player.geometry.computeBoundingSphere();
-    scene.add(player);
+    const player1 = new THREE.Mesh(player_geom, player_material);
+    player1.castShadow = true;
+    player1.geometry.computeBoundingSphere();
+    scene.add(player1);
+    player.push(player1);
 
     //BOX MATERIALS
 

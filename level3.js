@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OBB } from 'three/examples/jsm/Addons.js';
 
 
-let player;
+let player = [];
 let obstacles = [];
 
 export function setUpLevel(scene) {
@@ -257,10 +257,11 @@ export function setUpLevel(scene) {
     //     map : newtexturemat,
     // });
 
-    player = new THREE.Mesh(player_geom, player_material);
-    player.castShadow =true;
-    player.geometry.computeBoundingSphere();
-    scene.add(player);
+    const player1 = new THREE.Mesh(player_geom, player_material);
+    player1.castShadow = true;
+    player1.geometry.computeBoundingSphere();
+    scene.add(player1);
+    player.push(player1);
 
     function createBoxObstacle(x_i, y_i, z_i, length, width, height, transforms, disapearing =false, shrink =false, scale =false, speedobs =false){
         const box_ob_geometry = new THREE.BoxGeometry(length, width, height);

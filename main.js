@@ -105,17 +105,11 @@ function oscillation(period, time, speed, adjust){
 function init() {
     showHomeScreen();
     renderer = new THREE.WebGLRenderer();
-
-    renderer.shadowMap.enabled =true;
-    //renderer.shadowMap.type=THREE.PCFShadowMap;    
+    renderer.shadowMap.enabled =true; 
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     scene = new THREE.Scene();
-    // document.getElementById('level1').addEventListener('click', () => loadLevel(1));
-    // document.getElementById('level2').addEventListener('click', () => loadLevel(2));
-    // document.getElementById('level3').addEventListener('click', () => loadLevel(3));
-    // document.getElementById('level4').addEventListener('click', () => loadLevel(4));
 
 }
 
@@ -154,7 +148,6 @@ function removeEventListeners(){
     document.getElementById('level2').removeEventListener('click', () => loadLevel(2));
     document.getElementById('level3').removeEventListener('click', () => loadLevel(3));
     document.getElementById('level4').removeEventListener('click', () => loadLevel(4));
-    //document.getElementById('HomeLose').removeEventListener('click', () => showHomeScreen());
     document.getElementById('restart-button-win').removeEventListener('click', () => loadLevel(currentLevel));
     document.getElementById('restart-button-lose').removeEventListener('click', () => loadLevel(currentLevel));
 
@@ -180,7 +173,6 @@ function loadLevel(level) {
     currentLevel = level;
     isGameActive = true;
 
-    //const scenebackgroundtexture = new THREE.TextureLoader().load('assets/text.png');
     const loader = new THREE.CubeTextureLoader();
     const texture = loader.load(['assets/galaxy.png','assets/galaxy.png','assets/galaxy.png','assets/galaxy.png','assets/galaxy.png','assets/galaxy.png']);
     scene.background = texture;
@@ -435,16 +427,11 @@ function animate() {
 
              //constant speed of obstacles moving towards player
             const obs_incoming = translationMatrix(obs.x,obs.y, obs.z - game_time * speedofobst);
+
             model_transform.multiply(obs_incoming);
-            
             obs.mesh.matrix.copy(model_transform);
-
             obs.mesh.userData.obb.copy( obs.mesh.geometry.userData.obb );
-            //console.log(obs.mesh.matrixWorld)
             obs.mesh.userData.obb.applyMatrix4( model_transform );
-            //console.log(obs.mesh.userData.obb)
-
-            //const bounding = new THREE.Box3().setFromObject(obs.mesh);
 
             player.forEach(function(p){
 
@@ -604,27 +591,6 @@ function animate() {
 
     renderer.render(scene, camera);
 
-    // const ball_translation = translationMatrix(0, 0, animation_time * 3);
-    // const ball_rotationY = rotationMatrixY(rotation_angleY);
-    // const ball_rotationX = rotationMatrixX(rotation_angleX);
-    // const center = new THREE.Vector3(0,0,0);
-    // const distance = new THREE.Vector3().subVectors(center, ball_mesh.position);
-    // const adjust = translationMatrix(distance.x, distance.y, distance.z)
-
-    // let model_transform = new THREE.Matrix4();
-    // model_transform.multiplyMatrices(ball_translation, model_transform);
-    // model_transform.multiplyMatrices(adjust, model_transform);
-    // model_transform.multiplyMatrices(ball_rotationX, model_transform);
-    // model_transform.multiplyMatrices(ball_rotationY, model_transform);
-    // model_transform.multiplyMatrices(adjust, model_transform);
-    
-    // ball_mesh.matrix.copy(model_transform);
-    // ball_mesh.matrixAutoUpdate = false;
-    
-    // TODO: 2.b&2.c Update uniform values
-    // cube1_uniforms.animation_time.value = animation_time;
-    // cube2_uniforms.animation_time.value = animation_time;
-
 }
 
 init();
@@ -645,15 +611,6 @@ function checkCollision(obs_bounding, player_bounding) {
             //console.log("The box and sphere are not colliding!");
             return false;
         }
-    // {
-    //     if (obs_bounding.intersects(player_bounding)) {
-    //         console.log("The box and sphere are colliding!");
-    //         return true;
-    //     }
-    //     else{
-    //         return false;
-    //     }else
-    // }
 }
 
 window.addEventListener('keydown', onKeyPress);

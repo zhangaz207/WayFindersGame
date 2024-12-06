@@ -6,10 +6,6 @@ export function setUpLevel(scene) {
 
     let player = [];
     let obstacles = [];
-
-    // while (scene.children.length > 0) {
-    //     scene.remove(scene.children[0]);
-    // }
     
     class Texture_Rotate {
         vertexShader() {
@@ -132,9 +128,6 @@ export function setUpLevel(scene) {
     
     const player_geom = new THREE.SphereGeometry(1, 64, 64);
 
-    // const player_material = new THREE.MeshPhongMaterial({
-    //     color: 0xff0000
-    // });
 
     const newtexturemat = new THREE.TextureLoader().load('assets/ballpattern.png');
     newtexturemat.minFilter = THREE.LinearMipMapLinearFilter;
@@ -142,23 +135,12 @@ export function setUpLevel(scene) {
     const player_material = new THREE.MeshStandardMaterial({
         map : newtexturemat,
         });
-    
-// const newtexturemat = new THREE.TextureLoader().load('assets/glass.png');
-     // const player_material = new THREE.ShaderMaterial({
-    //     map : newtexturemat,
-    // });
 
     const player1 = new THREE.Mesh(player_geom, player_material);
     player1.castShadow = true;
     player1.geometry.computeBoundingSphere();
     scene.add(player1);
     player.push(player1);
-
-
-    // const box_ob_material_phong = new THREE.MeshPhongMaterial({
-    //     color: 0x48ff00, flatShading : true
-    // });
-
     
     function createBoxObstacle(x_i, y_i, z_i, length, width, height, transforms, win = false){
         const box_ob_geometry = new THREE.BoxGeometry(length, width, height);
@@ -193,14 +175,6 @@ export function setUpLevel(scene) {
             tranformations: transforms,
             isWin: win
         });
-    }
-    
-    function createSphereObstacle(){
-        
-    }
-    
-    function createCustomObstacles(){
-    
     }
     
     const translation = 1;
@@ -243,7 +217,6 @@ export function setUpLevel(scene) {
     createBoxObstacle(0,8,110,32,8,8,[addOscillatingTranslation(4, 0, 5, 0, 0)]);
 
     createBoxObstacle(0,0,140,100,100,1,[], true);
-
 
     // createBoxObstacle(0,0,50,10,3,2,[]);
     // createBoxObstacle(0,0,70,10,3,2,[addOscillatingTranslation(4, 10, 0, 0, -10)]);

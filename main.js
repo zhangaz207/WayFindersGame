@@ -10,6 +10,10 @@ let blendingFactor = 0.1;
 let obstacles;
 let player;
 let isGameActive = false;
+let player_time_cw = 0;
+let player_time_ccw = 0;
+
+
 
 //Player properties
 const speed = 0.1;
@@ -17,6 +21,8 @@ let moveLeft = false;
 let moveRight = false;
 let moveUp = false;
 let moveDown = false;
+const pivot = new THREE.Object3D();
+
 let obstructed = false;
 
 // Camera properties
@@ -46,6 +52,7 @@ const scaling = 3;
 const rotationX = 4;
 const rotationY = 5;
 const rotationZ = 6;
+const oscillating_rotation = 7;
 
 function translationMatrix(tx, ty, tz) {
     return new THREE.Matrix4().set(
@@ -119,8 +126,8 @@ function showHomeScreen() {
     document.getElementById('level1').addEventListener('click', () => loadLevel(1));
     document.getElementById('level2').addEventListener('click', () => loadLevel(2));
     document.getElementById('level3').addEventListener('click', () => loadLevel(3));
-    document.getElementById('level4').addEventListener('click', () => loadLevel(4));
-    document.getElementById('level5').addEventListener('click', () => loadLevel(5));
+    document.getElementById('level4').addEventListener('click', () => loadLevel(4))
+
 }
   
 function showWinScreen() {
@@ -144,7 +151,6 @@ function removeEventListeners(){
     document.getElementById('level2').removeEventListener('click', () => loadLevel(2));
     document.getElementById('level3').removeEventListener('click', () => loadLevel(3));
     document.getElementById('level4').removeEventListener('click', () => loadLevel(4));
-    document.getElementById('level5').removeEventListener('click', () => loadLevel(5));
     document.getElementById('HomeLose').removeEventListener('click', () => showHomeScreen());
     document.getElementById('restart-button').removeEventListener('click', () => loadLevel(currentLevel));
 
@@ -177,7 +183,7 @@ function loadLevel(level) {
     scene.background = texture;
 
     camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.set(-10,10,-20)
+    camera.position.set(0,0,-50);
 
     controls = new OrbitControls(camera, renderer.domElement);
     controls.target.set(0, 0, 0);
@@ -206,6 +212,11 @@ function loadLevel(level) {
 
     clock = new THREE.Clock();
 
+    if (level == 4) {
+        pivot.add(player);
+        scene.add(pivot);
+    }   
+
     switch (level) {
         case 1:
             import('./level1.js').then(level1 => {
@@ -226,28 +237,32 @@ function loadLevel(level) {
         //     import('./levels/level3.js').then(level3 => level3.setupLevel(scene, camera));
         //     break;
         case 4:
-            // import('./level4.js').then(level4 => {
-            //     const { player: newPlayer, obstacles: newObstacles } = level4.setUpLevel(scene)
-            //     player = newPlayer;
-            //     obstacles = newObstacles;
-            // });
+            import('./level4.js').then(level4 => {
+                const { player: newPlayer, obstacles: newObstacles } = level4.setUpLevel(scene)
+                player = newPlayer;
+                obstacles = newObstacles;
+            });
             break;
     }
     animate();
 }
 
+
+
+
 function animate() {
     if (!isGameActive)
         return;
     
+    let player_transform = new THREE.Matrix4();
+    let translateplayer = translationMatrix(0,5,0);
+
     controls.update();
     requestAnimationFrame(animate);
-    // let delta = clock.getDelta();
-    // animation_time += delta;
+    let delta = clock.getDelta();
     let game_time = clock.getElapsedTime();
-   
-
-    // if (!obstructed){
+    
+     if (!obstructed){
         if (currentLevel != 4) {
             if (moveLeft) {
                 if (player.position.x < 15)
@@ -267,14 +282,23 @@ function animate() {
             }
         }
         else{
+            let rotateccw = rotationMatrixZ(-3*player_time_ccw);
+            let rotatecw = rotationMatrixZ(3*player_time_cw);
+            
             if (moveLeft) {
-                player.rotation.z += speed;
+                player_time_ccw += delta;
             }
             if (moveRight) {
-                player.rotation.z -= speed;
+                player_time_cw += delta;
             }
+            player_transform.multiply(rotateccw);
+            player_transform.multiply(rotatecw);
+            player_transform.multiply(translateplayer);
+            player.matrix.copy(player_transform);
+            player.matrixAutoUpdate = false;
+            
         }
-    //}
+    }
 
 
     let player_bounding;
@@ -307,7 +331,7 @@ function animate() {
         if (currentdepth.z < -12) {
             obs.mesh.visible =false;
         }
-        // if (!obstructed){
+         if (!obstructed){
             
             let model_transform = new THREE.Matrix4();
             
@@ -334,6 +358,9 @@ function animate() {
                     case scaling:
                         matrix = scalingMatrix(oscillation(t.period, game_time, t.speed, t.adjust), oscillation(t.period, game_time, t.speed, t.adjust), 1);
                         break;
+                    case oscillating_rotation:
+                        matrix = rotationMatrixZ(t.speed * Math.sin(game_time));
+                        break;
                 }
     
                 model_transform.multiply(matrix);
@@ -354,44 +381,45 @@ function animate() {
         
             if (checkCollision(obs.mesh.userData.obb, player_bounding)){
                 
-                scene.background = null;
-                // for(var i = scene.children.length - 1; i >= 0; i--) { 
-                //     obj = scene.children[i];
-                //     scene.remove(obj); 
-                // }
-                // while (scene.children.length > 0){
-                //     scene.remove(scene.children[0]);
-                // }
-                // if (renderer && renderer.domElement && document.body.contains(renderer.domElement)) {
-                //     document.body.removeChild(renderer.domElement);
-                //  }
+                obstructed = true;
+                // scene.background = null;
+                // // for(var i = scene.children.length - 1; i >= 0; i--) { 
+                // //     obj = scene.children[i];
+                // //     scene.remove(obj); 
+                // // }
+                // // while (scene.children.length > 0){
+                // //     scene.remove(scene.children[0]);
+                // // }
+                // // if (renderer && renderer.domElement && document.body.contains(renderer.domElement)) {
+                // //     document.body.removeChild(renderer.domElement);
+                // //  }
 
-                while (scene.children.length > 0) {
-                    console.log(scene.children.length)
-                    const object = scene.children[0];
-                    scene.remove(object);
-                    if (object instanceof THREE.Mesh) {
-                        object.geometry.dispose();
+                // while (scene.children.length > 0) {
+                //     console.log(scene.children.length)
+                //     const object = scene.children[0];
+                //     scene.remove(object);
+                //     if (object instanceof THREE.Mesh) {
+                //         object.geometry.dispose();
                        
-                        object.material.dispose();
+                //         object.material.dispose();
     
-                        object.texture.dispose();
-                    }
+                //         object.texture.dispose();
+                //     }
             
                     
-                }
+                // }
 
-                if (document.body.contains(renderer.domElement)) {
-                    document.body.removeChild(renderer.domElement);
-                }
+                // if (document.body.contains(renderer.domElement)) {
+                //     document.body.removeChild(renderer.domElement);
+                // }
                 
-                isGameActive = false;
-                showLoseScreen();
-                return;
+                // isGameActive = false;
+                // showLoseScreen();
+                // return;
                 
             }
 
-        //}   
+        }   
         
     });
 

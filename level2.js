@@ -160,6 +160,7 @@ export function setUpLevel(scene) {
             color : 0x888888,
         });
 
+        const box_ob_mesh = new THREE.Mesh(box_ob_geometry, box_ob_material);
         // const box_uniforms = {
         //     uTexture: { value: box_ob_texture },
         //     //animation_time: { value: animation_time }
@@ -172,7 +173,7 @@ export function setUpLevel(scene) {
         //     fragmentShader: box_ob_shader.fragmentShader(),
         // });
     
-        const box_ob_mesh = new THREE.Mesh(box_ob_geometry, box_ob_material);
+        
         //box_ob_mesh.castShadow = true;
         //box_ob_mesh.receiveShadow = true;
 

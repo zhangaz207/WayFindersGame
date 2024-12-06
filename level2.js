@@ -148,7 +148,7 @@ export function setUpLevel(scene) {
     //createBoxObstacle(-16,0,280-mydist,32,64,5,[]);
 
     createBoxObstacle(10,-32,205-mydist,20,5,30,[addOscillatingTranslation(8,0,100,0,-50)]);
-    createBoxObstacle(0,0,230-mydist,64,64,30,[],false);
+    createBoxObstacle(0,0,240-mydist,64,64,30,[],true);
     //createBoxObstacle(10,-16,220-mydist,16,25,60,[addOscillatingTranslation(5,0,10,0,0)]);
 
 

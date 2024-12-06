@@ -13,6 +13,31 @@ let isGameActive = false;
 let speedofobst=5;
 let buffed =false;
 
+let levelScore = 0;
+let collectScore = 0;
+let ignoreInitial = 0;
+//document.getElementById("levelScore").textContent = levelScore;
+// document.getElementById("collectScore").textContent = collectScore;
+// localStorage.setItem('levelScore', levelScore);
+// localStorage.setItem('collectScore', collectScore);
+// window.addEventListener('load', () => {
+//     const savedLevelScore = localStorage.getItem('levelScore');
+//     const savedCollectScore = localStorage.getItem('collectScore');
+
+//     if (savedLevelScore) {
+//         levelScore = parseInt(savedLevelScore);
+//         document.getElementById("levelScore").textContent = levelScore;
+//     }
+
+//     if (savedCollectScore) {
+//         collectScore = parseInt(savedCollectScore);
+
+//         console.log("Setting collect score to:", collectScore);
+//         document.getElementById("collectScore").textContent = collectScore;
+//     }
+// });
+
+
 //Player properties
 const speed = 0.1;
 let moveLeft = false;
@@ -117,21 +142,41 @@ function showHomeScreen() {
     document.getElementById('homeScreen').style.display = '';
     document.getElementById('loseScreen').style.display = 'none';
     document.getElementById('winScreen').style.display = 'none';
+    document.getElementById('winScreen5').style.display = 'none';
+
+    document.getElementById('collectScoreBoard').style.display = 'none';
+    document.getElementById('levelContainer').style.display = 'none';
+
+    document.getElementById('startButton').addEventListener('click', () => loadLevel(1));
+    document.getElementById('showLevels').addEventListener('click', () => cheatLevels());
+
     document.getElementById('level1').addEventListener('click', () => loadLevel(1));
     document.getElementById('level2').addEventListener('click', () => loadLevel(2));
     document.getElementById('level3').addEventListener('click', () => loadLevel(3));
-    document.getElementById('level4').addEventListener('click', () => loadLevel(4))
-
+    document.getElementById('level4').addEventListener('click', () => loadLevel(4));
+    document.getElementById('level5').addEventListener('click', () => loadLevel(5));
 }
   
+function cheatLevels() {
+    document.getElementById('levelContainer').style.display = '';
+    document.getElementById('showLevels').style.display = 'none';
+}
+
 function showWinScreen() {
-    
     document.getElementById('winScreen').style.display = '';
     document.getElementById('restart-button-win').addEventListener('click', () => reloadFunct());
     removeEventListeners();
 }
+
+function showWinScreen5() {
+    document.getElementById('winScreen5').style.display = '';
+    document.getElementById('collectScoreBoard').style.display = 'none';
+    document.getElementById("collectScore1").textContent = collectScore;
+    document.getElementById('restart-button-win5').addEventListener('click', () => reloadFunct());
+}
   
 function showLoseScreen() {
+    document.getElementById('collectScoreBoard').style.display = 'none';
     document.getElementById('loseScreen').style.display = '';
     document.getElementById('restart-button-lose').addEventListener('click', () => reloadFunct());
     removeEventListeners();
@@ -148,7 +193,9 @@ function removeEventListeners(){
     document.getElementById('level2').removeEventListener('click', () => loadLevel(2));
     document.getElementById('level3').removeEventListener('click', () => loadLevel(3));
     document.getElementById('level4').removeEventListener('click', () => loadLevel(4));
+    document.getElementById('level5').removeEventListener('click', () => loadLevel(5));
     document.getElementById('restart-button-win').removeEventListener('click', () => loadLevel(currentLevel));
+    document.getElementById('restart-button-win5').removeEventListener('click', () => loadLevel(currentLevel));
     document.getElementById('restart-button-lose').removeEventListener('click', () => loadLevel(currentLevel));
 
 }
@@ -168,7 +215,15 @@ function loadLevel(level) {
     document.getElementById('homeScreen').style.display = 'none';
     document.getElementById('winScreen').style.display = 'none';
     document.getElementById('loseScreen').style.display = 'none';
+    document.getElementById('levelContainer').style.display = 'none';
     document.body.appendChild(renderer.domElement);
+
+    if (level == 5) {
+        document.getElementById('collectScoreBoard').style.display = '';
+    }
+    else { 
+        document.getElementById('collectScoreBoard').style.display = 'none';
+    }
 
     currentLevel = level;
     isGameActive = true;
@@ -215,7 +270,6 @@ function loadLevel(level) {
                 player = newPlayer;
                 obstacles = newObstacles;
             });
-
             break;
         case 2:
             import('./level2.js').then(level2 => {
@@ -238,10 +292,16 @@ function loadLevel(level) {
                 obstacles = newObstacles;
             });
             break;
+        case 5:
+            import('./level5.js').then(level5 => {
+                const { player: newPlayer, obstacles: newObstacles } = level5.setUpLevel(scene)
+                player = newPlayer;
+                obstacles = newObstacles;
+            });
+            break;
     }
     animate();
 }
-
 
 // function rgbToHex(r, g, b) {
 //     return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
@@ -331,6 +391,24 @@ function animate() {
                     player[0].position.y -= speed;
             }
         }
+        else if (currentLevel == 5) {
+            if (moveLeft) {
+                if (player[0].position.x < 30)
+                    player[0].position.x += 0.15;
+            }
+            if (moveRight) {
+                if (player[0].position.x > -30)
+                    player[0].position.x -= 0.15;
+            }
+            if (moveUp) {
+                if (player[0].position.y < 30)
+                    player[0].position.y += 0.15;
+            }
+            if (moveDown) {
+                if (player[0].position.y > -30)
+                    player[0].position.y -= 0.15;
+            }
+        }
         else{
             let rotateccw = rotationMatrixZ(-5*player_time_ccw);
             let rotatecw = rotationMatrixZ(5*player_time_cw);
@@ -357,7 +435,7 @@ function animate() {
     //}
 
 
-    
+    console.log(obstacles[0]);
     obstacles.forEach(function (obs,index){
         let currentdepth = new THREE.Vector4();
         currentdepth.setFromMatrixPosition(obs.mesh.matrixWorld);
@@ -372,8 +450,6 @@ function animate() {
             obs.mesh.castShadow=true;
             obs.mesh.visible=true;
             obs.mesh.receiveShadow =true;
-
-            
         }
 
         if (currentdepth.z < -15 && obs.mesh.visible) {
@@ -387,132 +463,154 @@ function animate() {
             }
     
         }
-        //  if (!obstructed){
             
-            let model_transform = new THREE.Matrix4();
+        let model_transform = new THREE.Matrix4();
+        console.log(obs);
+        obs.tranformations.forEach(function (t, index){
 
+            let matrix;
 
-            obs.tranformations.forEach(function (t, index){
-
-
-                let matrix;
-
-                switch(t.tr_type) {
-                    case translation:
-                        matrix = translationMatrix(t.speedX * game_time,t.speedY*game_time, t.speedZ*game_time);
-                        break;
-                    case oscillating_translation:
-                        matrix = translationMatrix(oscillation(t.period, game_time, t.speedX, t.speedX ? t.adjust : 0), oscillation(t.period, game_time, t.speedY, t.speedY ? t.adjust : 0), oscillation(t.period, game_time, t.speedZ, t.speedZ ? t.adjust : 0));
-
-                        break;
-                    case rotationX:
-                        matrix = rotationMatrixX(t.speed * game_time);
-                        break;
-                    case rotationY: 
-                        matrix = rotationMatrixY(t.speed * game_time);
-                        break;
-                    case rotationZ: 
-                        matrix = rotationMatrixZ(t.speed * game_time);
-                        break;
-                    case scaling:
-                        matrix = scalingMatrix(oscillation(t.period, game_time, t.speed, t.adjust), oscillation(t.period, game_time, t.speed, t.adjust), 1);
-                        break;
-                    case oscillating_rotation:
-                        matrix = rotationMatrixZ(t.speed * Math.sin(game_time));
-                        break;
-                }
-                model_transform.multiply(matrix);
+            switch(t.tr_type) {
+                case translation:
+                    matrix = translationMatrix(t.speedX * game_time,t.speedY*game_time, t.speedZ*game_time);
+                    break;
+                case oscillating_translation:
+                    matrix = translationMatrix(oscillation(t.period, game_time, t.speedX, t.speedX ? t.adjust : 0), oscillation(t.period, game_time, t.speedY, t.speedY ? t.adjust : 0), oscillation(t.period, game_time, t.speedZ, t.speedZ ? t.adjust : 0));
+                    break;
+                case rotationX:
+                    matrix = rotationMatrixX(t.speed * game_time);
+                    break;
+                case rotationY: 
+                    matrix = rotationMatrixY(t.speed * game_time);
+                    break;
+                case rotationZ: 
+                    matrix = rotationMatrixZ(t.speed * game_time);
+                    break;
+                case scaling:
+                    matrix = scalingMatrix(oscillation(t.period, game_time, t.speed, t.adjust), oscillation(t.period, game_time, t.speed, t.adjust), 1);
+                    break;
+                case oscillating_rotation:
+                    matrix = rotationMatrixZ(t.speed * Math.sin(game_time));
+                    break;
+            }
+            model_transform.multiply(matrix);
 
             });
 
-             //constant speed of obstacles moving towards player
-            const obs_incoming = translationMatrix(obs.x,obs.y, obs.z - game_time * speedofobst);
-
+            //constant speed of obstacles moving towards player
+            const obs_incoming = translationMatrix(obs.x,obs.y, obs.z - game_time * 5);
             model_transform.multiply(obs_incoming);
+            
+            if (currentLevel == 5 && obs.type == 'sphere') {
+            obs.mesh.matrix.copy(model_transform);
+            obs.mesh.userData.boundingSphere.center.setFromMatrixPosition(obs.mesh.matrixWorld);
+            }
+            else {
             obs.mesh.matrix.copy(model_transform);
             obs.mesh.userData.obb.copy( obs.mesh.geometry.userData.obb );
             obs.mesh.userData.obb.applyMatrix4( model_transform );
+            } 
 
-            player.forEach(function(p){
-
+            if (currentLevel == 5) {
                 let player_bounding;
-                player_bounding = p.geometry.boundingSphere.clone();
-                player_bounding.center.applyMatrix4(p.matrixWorld);
+                player_bounding = player[0].geometry.boundingSphere.clone();
+                player_bounding.center.applyMatrix4(player[0].matrixWorld);
 
-                if (checkCollision(obs.mesh.userData.obb, player_bounding)){
-                
-                    if(obs.isWin){
-                        isGameActive = false;
-                        showWinScreen();
-                        return;
+                if (checkCollision(obs, player_bounding)){
+                    if (ignoreInitial <= obstacles.length) {
+                        ignoreInitial++;
                     }
-    
-                    if(obs.small) {
-                        player.scale.x*=0.99;
-                        player.scale.y*=0.99;
-                        player.scale.z*=0.99;
-    
-                        obs.mesh.visibile =false;
-                        obs.vis=true;
-                        buffed=true;
-                        return;
+                    else if (obs.collect == true) {
+                        if (obs.type == 'box') {
+                            showWinScreen5();
+                        }
+                        if (obs.collected == false) {
+                            collectScore++;
+                            console.log("Score:", collectScore, "obj", obs);
+                            document.getElementById("collectScoreGame").textContent = collectScore;
+                            localStorage.setItem('collectScore', collectScore);
+                            obs.collected = true;
+                            obs.mesh.visible = false;
+                        }
                     }
-                    if(obs.big) {
-                        player.scale.x*=1.01;
-                        player.scale.y*=1.01;
-                        player.scale.z*=1.01;
-    
-                        obs.mesh.visibile =false;
-                        obs.vis=true;
-                        buffed=true;
-    
-                        return;
-                    }
-                    if(obs.fast) {
-                        speedofobst*=2;
-                        obs.mesh.visibile =false;
-                        obs.vis=true;
-                        buffed=true;
-    
-                        return;
-                    }
-    
-                    scene.background = null;
-                    // for(var i = scene.children.length - 1; i >= 0; i--) { 
-                    //     obj = scene.children[i];
-                    //     scene.remove(obj); 
-                    // }
-                    // while (scene.children.length > 0){
-                    //     scene.remove(scene.children[0]);
-                    // }
-                    // if (renderer && renderer.domElement && document.body.contains(renderer.domElement)) {
-                    //     document.body.removeChild(renderer.domElement);
-                    //  }
-    
-                    // while (scene.children.length > 0) {
-                    //     console.log(scene.children.length)
-                    //     const object = scene.children[0];
-                    //     scene.remove(object);
-                    //     if (object instanceof THREE.Mesh) {
-                    //         object.geometry.dispose();
-                           
-                    //         object.material.dispose();
+                    else {
+                        scene.background = null;    
+                        while (scene.children.length > 0) {
+                            console.log(scene.children.length)
+                            const object = scene.children[0];
+                            scene.remove(object);
+                            if (object instanceof THREE.Mesh) {
+                                object.geometry.dispose();
+                                if (object.material) {
+                                    object.material.map.dispose();
+                                }
+                                object.material.dispose();
+                            } 
+                        }
         
-                    //         object.texture.dispose();
-                    //     }
-                
-                        
-                    // }
-    
-                    // if (document.body.contains(renderer.domElement)) {
-                    //     document.body.removeChild(renderer.domElement);
-                    // }
-                    isGameActive = false;
-                    showLoseScreen();
-                    return;
+                        if (document.body.contains(renderer.domElement)) {
+                            document.body.removeChild(renderer.domElement);
+                        }
+                        isGameActive = false;
+                        document.getElementById("level").textContent = levelScore;
+                        showLoseScreen();
+                        return; 
+                    }
+                }   
+            }
+            else {
+                player.forEach(function(p){
+                    console.log("why");
+                    let player_bounding;
+                    player_bounding = p.geometry.boundingSphere.clone();
+                    player_bounding.center.applyMatrix4(p.matrixWorld);
+
+                    if (checkCollision(obs, player_bounding)){
                     
-                }
-            });   
+                        if(obs.isWin){
+                            isGameActive = false;
+                            showWinScreen();
+                            return;
+                        }
+        
+                        if(obs.small) {
+                            player.scale.x*=0.99;
+                            player.scale.y*=0.99;
+                            player.scale.z*=0.99;
+        
+                            obs.mesh.visibile =false;
+                            obs.vis=true;
+                            buffed=true;
+                            return;
+                        }
+                        if(obs.big) {
+                            player.scale.x*=1.01;
+                            player.scale.y*=1.01;
+                            player.scale.z*=1.01;
+        
+                            obs.mesh.visibile =false;
+                            obs.vis=true;
+                            buffed=true;
+        
+                            return;
+                        }
+                        if(obs.fast) {
+                            speedofobst*=2;
+                            obs.mesh.visibile =false;
+                            obs.vis=true;
+                            buffed=true;
+        
+                            return;
+                        }
+        
+                        scene.background = null;
+                        isGameActive = false;
+                        showLoseScreen();
+                        return;
+                        
+                    }
+                });   
+            }
     });
 
     // let cameraTransform = new THREE.Matrix4();
@@ -597,12 +695,17 @@ init();
 // HELPER FUNCTIONS
 
 function checkCollision(obs_bounding, player_bounding) {
-    // Check if the box intersects with the sphere's bounding sphere
-    //console.log("Box bounding:", obs_bounding);
-    //console.log("Ball bounding:", player_bounding);
 
-    // if (currentLevel != 4)
-        if (obs_bounding.intersectsSphere(player_bounding)) {
+    if (currentLevel == 5 && obs_bounding.type == 'sphere') {
+        if (obs_bounding.mesh.userData.boundingSphere.intersectsSphere(player_bounding)) {
+            return true;
+        }
+        else {
+            return false;
+        } 
+    }
+    else {
+        if (obs_bounding.mesh.userData.obb.intersectsSphere(player_bounding)) {
             //console.log("The box and sphere are colliding!");
             return true;
         }
@@ -610,6 +713,7 @@ function checkCollision(obs_bounding, player_bounding) {
             //console.log("The box and sphere are not colliding!");
             return false;
         }
+    }
 }
 
 window.addEventListener('keydown', onKeyPress);

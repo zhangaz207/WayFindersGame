@@ -1,21 +1,286 @@
+<!--
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Wayfinders</title>
-    <!-- Pixeloid Sans Font -->
     <link href="https://fonts.cdnfonts.com/css/pixeloid-sans" rel="stylesheet">
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
 		#homeScreen {
             margin: 0;
             font-family: 'Pixeloid Sans', sans-serif;
-            background-image: url('https://img.freepik.com/free-vector/neon-landscape-background_53876-91655.jpg');
+            background-image: url(assets/disco-background.jpg);
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            position: relative;
+		}
+
+		#loseScreen {
+			background-color: #1a1a1a;
+            color: white;
+            font-family: 'Pixeloid Sans', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around; 
+            align-items: center;
+            height: 100vh;
+		}
+        #winScreen {
+			background-color: #1a1a1a;
+            color: white;
+            font-family: 'Pixeloid Sans', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around; 
+            align-items: center;
+            height: 100vh;
+		}
+
+        #winScreen5 {
+            margin: 0;
+            font-family: 'Pixeloid Sans', sans-serif;
+            background-image: url(assets/win-screen.webp);
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .title-container {
+            background-color: rgba(37, 51, 33, 0.8); /* Semi-transparent dark green */
+            padding: 20px 40px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 4rem;
+            margin: 0;
+            background: linear-gradient(to right, #eb4038, #fa9708, yellow, #2bba1f, #2b6df3, #f345e4);
+            -webkit-background-clip: text;
+  			background-clip: text;
+  			color: transparent;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.35);
+        }
+
+        .greenButton {
+            background-color: rgba(62, 78, 60, 0.8);
+            color: white;
+            font-size: 1.5rem;
+            padding: 10px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: -10px;
+            font-family: 'Pixeloid Sans', sans-serif;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .greenButton:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.7);
+        }
+
+        .blueButton {
+            background-color: rgba(8, 24, 110, 0.8);
+            color: white;
+            font-size: 1.5rem;
+            padding: 10px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: -10px;
+            font-family: 'Pixeloid Sans', sans-serif;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .blueButton:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.7);
+        }
+
+        #buttonContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            margin-top: 15px;
+        }
+
+        #winScreen5 #buttonContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 60px;
+            margin-top: 15px;
+        }
+
+        #winScreen5 .blueButton:first-child {
+            margin-top: -10px;
+        }
+
+        #winScreen5 .blueButton:last-child {
+            margin-top: 400px;
+        }
+
+        #startButton {
+            background-color: rgba(62, 78, 60, 0.8);
+            color: white;
+            font-size: 1.5rem;
+            padding: 10px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: -10px;
+            font-family: 'Pixeloid Sans', sans-serif;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+		#levelContainer {
+			display: flex;
+			justify-content: center;
+			gap: 20px; 
+		}
+
+		#levelContainer button {
+			background-color: rgba(62, 78, 60, 0.8);
+			color: white;
+			font-size: 1.2rem;
+			padding: 10px 20px;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
+			transition: transform 0.2s, box-shadow 0.2s;
+			font-family: 'Pixeloid Sans', sans-serif;
+			text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+		}
+
+		#levelContainer button:hover {
+			transform: scale(1.05);
+			box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.7);
+		}
+
+		#gameOver {
+            color: darkred;
+            font-size: 60px;
+            animation: flashInOut 3s infinite ease-in-out;
+        }
+        #levelMessage {
+            color: lightgreen;
+            font-size: 40px;
+        }
+        #restartButton {
+            background-color: rgba(52, 38, 203, 0.4);
+            color: white;
+            padding: 10px 20px;
+            font-size: 40px;
+            font-family: 'Pixeloid Sans', sans-serif;
+            border: none;
+            cursor: pointer;
+        }
+        #restartButton:hover {
+            background-color: darkblue;
+		}
+        #collectScoreBoard {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.5rem;
+            color: black;
+            background: radial-gradient(circle, white, yellow);
+            padding: 15px 25px;
+            border-radius: 50%;
+            text-align: center;
+            box-shadow: 0px 4px 10px rgba(255, 255, 0, 0.8);
+            transform: scale(1);
+            transition: transform 0.3s ease-in-out;
+            font-family: 'Pixeloid Sans', sans-serif;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+    </style>
+</head>
+<body>
+	<div id="homeScreen">
+		<div class="title-container">
+			<h1>The Wayfinders</h1>
+		</div>
+		<div id="buttonContainer">
+		    <button class="greenButton" id="startButton">Start</button>
+            <button class="greenButton" id="showLevels">Cheat and Show Levels</button>
+            <div id="levelContainer">
+                <button id="level1">Level 1</button>
+                <button id="level2">Level 2</button>
+                <button id="level3">Level 3</button>
+                <button id="level4">Level 4</button>
+                <button id="level5">Level 5</button>
+            </div>
+		</div>	
+	</div>
+	<div id="winScreen">
+		<div id="level-complete">Level Complete</div>
+		<button id="restart-button-win" onclick="restartGame()">Menu</button>
+	</div>
+    <div id="winScreen5">hid
+        <div id="buttonContainer">
+            <div class="blueButton">There were 5 coins. You got <span id="collectScore1"></span> coins, nice!</div>   
+		    <button class="blueButton" id="HomeWin6" onclick="restartGame()">Home</button>
+        </div>
+	</div>
+    <div id="loseScreen"> 
+		<img src="https://media.istockphoto.com/id/1040956110/vector/pixel-skull-and-crossbones-icon-vector-illustration.jpg?s=612x612&w=0&k=20&c=2SqrmTbeOeOT7wq6uWc-X_QyBJ0VAIdE-cRiuhUoPow=" alt="Pixel Skull Icon" width="150" height="150">
+		<div id="game-over">Game Over</div>
+		<button id="restart-button-lose" onclick="restartGame()">Menu</button>
+	</div>
+    <div id="collectScoreBoard">
+        Collect Score: <span id="collectScoreGame">0</span>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script type="module" src="/main.js"></script>
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic HTML with Neon Background</title>
+    <!-- Pixeloid Sans Font -->
+    <link href="https://fonts.cdnfonts.com/css/pixeloid-sans" rel="stylesheet">
+    <style>
+		#homeScreen {
+            margin: 0;
+            font-family: 'Pixeloid Sans', sans-serif;
+            background-image: url(assets/disco-background.jpg);
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center;
@@ -41,8 +306,9 @@
             align-items: center;
             height: 100vh;
 		}
-        #winScreen{
-			background-color: #1a1a1a;
+
+        #winScreen {
+            background-color: #1a1a1a;
             color: white;
             font-family: 'Pixeloid Sans', sans-serif;
             text-align: center;
@@ -53,16 +319,35 @@
             justify-content: space-around; 
             align-items: center;
             height: 100vh;
-		}
+        }
 
-        /* .top-score {
+        #winScreen5 {
+            margin: 0;
+            font-family: 'Pixeloid Sans', sans-serif;
+            background-image: url(assets/win-screen.webp);
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .topScore {
             position: absolute;
             top: 20px;
             right: 20px;
             font-size: 1.5rem;
             color: black;
             background: radial-gradient(circle, white, yellow);
-            padding: 10px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 25px;
             border-radius: 50%;
             text-align: center;
             box-shadow: 0px 4px 10px rgba(255, 255, 0, 0.8);
@@ -72,12 +357,12 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
         }
 
-        .top-score:hover {
+        .topScore:hover {
             transform: scale(1.1);
-        } */
+        }
 
-        .title-container {
-            background-color: rgba(37, 51, 33, 0.8); /* Semi-transparent dark green */
+        .titleContainer {
+            background-color: rgba(37, 51, 33, 0.8);
             padding: 20px 40px;
             border-radius: 8px;
             text-align: center;
@@ -94,7 +379,38 @@
             text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.35);
         }
 
-        #start-button {
+        .placeholderImage {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-color: gray;
+            border: 2px solid white;
+            border-radius: 10px;
+        }
+
+        .topLeft img {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 100px;
+            height: 100px;
+            border: 2px solid white;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .bottomRight img {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 100px;
+            height: 100px;
+            border: 2px solid white;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .greenButton {
             background-color: rgba(62, 78, 60, 0.8);
             color: white;
             font-size: 1.5rem;
@@ -109,50 +425,77 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
         }
 
-        #start-button:hover {
+        .greenButton:hover {
             transform: scale(1.05);
             box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.7);
         }
 
-        .placeholder-image {
-            position: absolute;
-            width: 100px;
-            height: 100px;
-            background-color: gray;
-            border: 2px solid white;
-            border-radius: 10px;
+        .blueButton {
+            background-color: rgba(8, 24, 110, 0.8);
+            color: white;
+            font-size: 1.5rem;
+            padding: 10px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: -10px;
+            font-family: 'Pixeloid Sans', sans-serif;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
         }
 
-        .top-left img {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 100px;
-            height: 100px;
-            border: 2px solid white;
-            border-radius: 10px;
-            object-fit: cover;
+        .blueButton:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.7);
         }
 
-        .bottom-right img {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 100px;
-            height: 100px;
-            border: 2px solid white;
-            border-radius: 10px;
-            object-fit: cover;
+        #buttonContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            margin-top: 15px;
         }
 
-		#level-buttons-container {
+        #winScreen5 #buttonContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 60px;
+            margin-top: 15px;
+        }
+
+        #winScreen5 .blueButton:first-child {
+            margin-top: -10px;
+        }
+
+        #winScreen5 .blueButton:last-child {
+            margin-top: 400px;
+        }
+
+        #startButton {
+            background-color: rgba(62, 78, 60, 0.8);
+            color: white;
+            font-size: 1.5rem;
+            padding: 10px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: -10px;
+            font-family: 'Pixeloid Sans', sans-serif;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+		#levelContainer {
 			display: flex;
 			justify-content: center;
-			gap: 10px; /* Adds space between buttons */
-			margin-top: 20px;
+			gap: 20px; 
 		}
 
-		#level-buttons-container button {
+		#levelContainer button {
 			background-color: rgba(62, 78, 60, 0.8);
 			color: white;
 			font-size: 1.2rem;
@@ -166,26 +509,21 @@
 			text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 		}
 
-		#level-buttons-container button:hover {
+		#levelContainer button:hover {
 			transform: scale(1.05);
 			box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.7);
 		}
 
-		#game-over {
+		#gameOver {
             color: darkred;
             font-size: 60px;
             animation: flashInOut 3s infinite ease-in-out;
         }
-        #level-complete {
-            color: rgb(0, 128, 43);
-            font-size: 60px;
-            animation: flashInOut 3s infinite ease-in-out;
-        }
-        #level-message {
+        #levelMessage {
             color: lightgreen;
             font-size: 40px;
         }
-        #restart-button-win {
+        .restartButton {
             background-color: rgba(52, 38, 203, 0.4);
             color: white;
             padding: 10px 20px;
@@ -194,59 +532,67 @@
             border: none;
             cursor: pointer;
         }
-        #restart-button-lose {
-            background-color: rgba(52, 38, 203, 0.4);
-            color: white;
-            padding: 10px 20px;
-            font-size: 40px;
-            font-family: 'Pixeloid Sans', sans-serif;
-            border: none;
-            cursor: pointer;
-        }
-        #restart-button:hover {
+        .restartButton:hover {
             background-color: darkblue;
 		}
+        #collectScoreBoard {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.5rem;
+            color: black;
+            background: radial-gradient(circle, white, yellow);
+            padding: 15px 25px;
+            border-radius: 50%;
+            text-align: center;
+            box-shadow: 0px 4px 10px rgba(255, 255, 0, 0.8);
+            transform: scale(1);
+            transition: transform 0.3s ease-in-out;
+            font-family: 'Pixeloid Sans', sans-serif;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
     </style>
 </head>
 <body>
 	<div id="homeScreen">
-		<!-- <div class="top-score" id="top-score-container">
-			Top Score: <span id="top-score">0</span>
-		</div> -->
-		<!-- <div class="top-left">
-			<img src="path/to/top-left-image.png" alt="Top Left Placeholder">
-		</div>
-		<div class="bottom-right">
-			<img src="path/to/bottom-right-image.png" alt="Bottom Right Placeholder"> -->
-		<!-- </div> -->
-		<div class="title-container">
+		
+		<div class="titleContainer">
 			<h1>The Wayfinders</h1>
 		</div>
-		<div id="level-buttons-container">
-			<button id="level1">Level 1</button>
-			<button id="level2">Level 2</button>
-			<button id="level3">Level 3</button>
-			<button id="level4">Level 4</button>
-		</div>	
+        <div id="buttonContainer">
+		    <button class="greenButton" id="startButton">Start</button>
+            <button class="greenButton" id="showLevels">Cheat and Show Levels</button>
+            <div id="levelContainer">
+                <button id="level1">Level 1</button>
+                <button id="level2">Level 2</button>
+                <button id="level3">Level 3</button>
+                <button id="level4">Level 4</button>
+                <button id="level5">Level 5</button>
+            </div>	
+        </div>
 	</div>
-	<div id="winScreen">
-		<div id="level-complete">Level Complete</div>
-		<button id="restart-button-win" onclick="restartGame()">Menu</button>
+    <div id="winScreen">
+        <div id="buttonContainer">
+            <div id="level-complete">Level Complete</div>
+		    <button id="restart-button-win" onclick="restartGame()">Menu</button>
+        </div>
+	</div>
+	<div id="winScreen5">
+        <div id="buttonContainer">
+            <div class="blueButton">There were 5 coins. You got <span id="collectScore1"></span> coins, nice!</div>   
+		    <button class="blueButton" id="restart-button-win5" onclick="restartGame()">Home</button>
+        </div>
 	</div>
     <div id="loseScreen"> 
-		<img src="https://media.istockphoto.com/id/1040956110/vector/pixel-skull-and-crossbones-icon-vector-illustration.jpg?s=612x612&w=0&k=20&c=2SqrmTbeOeOT7wq6uWc-X_QyBJ0VAIdE-cRiuhUoPow=" alt="Pixel Skull Icon" width="150" height="150">
-		<div id="game-over">Game Over</div>
-		<!-- <div id="level-message">Good Job! You made it to level: <span id="level"> 5</span></div> -->
-		<button id="restart-button-lose" onclick="restartGame()">Menu</button>
+		<img src="assets/skull.jpg" alt="Pixel Skull Icon" width="150" height="150">
+		<div id="gameOver">Game Over</div>
+		<div id="levelMessage">Nice Try Though!</div>
+		<button class="restartButton" id="restart-button-lose" onclick="restartGame()">Restart</button>
 	</div>
-    
-    <script>
-        // Placeholder for the top score variable
-        let topScore = 100; // Example score, replace with dynamic value as needed
-        document.getElementById("top-score").textContent = topScore;
-    </script>
+    <div id="collectScoreBoard">
+        Collect Score: <span id="collectScoreGame">0</span>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
     <script type="module" src="/main.js"></script>
 </body>
 </html>

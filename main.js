@@ -507,7 +507,6 @@ function animate() {
                     // if (document.body.contains(renderer.domElement)) {
                     //     document.body.removeChild(renderer.domElement);
                     // }
-                    
                     isGameActive = false;
                     showLoseScreen();
                     return;

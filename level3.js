@@ -248,9 +248,16 @@ export function setUpLevel(scene) {
 
     const player_geom = new THREE.SphereGeometry(1, 64, 64);
 
-    const player_material = new THREE.MeshPhongMaterial({
-        color: 0xff0000
-    });
+    // const player_material = new THREE.MeshPhongMaterial({
+    //     color: 0xff0000
+    // });
+
+    const newtexturemat = new THREE.TextureLoader().load('assets/ballpattern.png');
+    newtexturemat.minFilter = THREE.LinearMipMapLinearFilter;
+
+     const player_material = new THREE.MeshStandardMaterial({
+        map : newtexturemat,
+        });
 
 // const newtexturemat = new THREE.TextureLoader().load('assets/glass.png');
      // const player_material = new THREE.ShaderMaterial({
@@ -410,9 +417,9 @@ export function setUpLevel(scene) {
 
     createBoxObstacle(-6,-6,70,5,3,2,[addRotationZ(1),addScaling(1.5, 1, 1)],true);
     createBoxObstacle(6,-6,70,5,3,2,[addRotationZ(1),addScaling(1.5, 1, 1)]);
-    createBoxObstacle(-6,6,70,5,3,2,[addRotationZ(1),addScaling(1.5, 1, 1)]);
+    createBoxObstacle(-6,6,70,5,3,2,[addRotationZ(1),addScaling(1.5, 1, 1)],true);
     createBoxObstacle(6,6,70,5,3,2,[addRotationZ(1),addScaling(1.5, 1, 1)]);
-    createBoxObstacle(0,0,70,4,4,2,[addRotationZ(5),addScaling(1, 1, 1)],true);
+    createBoxObstacle(0,0,70,4,4,2,[addRotationZ(5),addScaling(1, 1, 1)]);
 
     //set 3
     //regular trnaslation brokjen
@@ -452,7 +459,7 @@ export function setUpLevel(scene) {
     //createBoxObstacle(-16,0,280-mydist,32,64,5,[]);
 
     createBoxObstacle(10,-32,205-mydist,20,5,30,[addOscillatingTranslation(8,0,100,0,-50)]);
-    createBoxObstacle(0,0,230-mydist,64,64,30,[],false,false,false,false,false);
+    createBoxObstacle(0,0,230-mydist,64,64,30,[],false,false,false,false,true);
 
     //createBoxObstacle(10,-16,220-mydist,16,25,60,[addOscillatingTranslation(5,0,10,0,0)]);
 

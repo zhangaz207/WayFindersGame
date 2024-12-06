@@ -130,10 +130,16 @@ export function setUpLevel(scene) {
 
 
     const player_geom = new THREE.SphereGeometry(1, 64, 64);
-    const player_material = new THREE.MeshPhongMaterial({
-        color: 0xff0000
-    });
-    
+    // const player_material = new THREE.MeshPhongMaterial({
+    //     color: 0xff0000
+    // });
+
+    const newtexturemat = new THREE.TextureLoader().load('assets/ballpattern.png');
+    newtexturemat.minFilter = THREE.LinearMipMapLinearFilter;
+
+     const player_material = new THREE.MeshStandardMaterial({
+        map : newtexturemat,
+        });
 // const newtexturemat = new THREE.TextureLoader().load('assets/glass.png');
      // const player_material = new THREE.ShaderMaterial({
     //     map : newtexturemat,

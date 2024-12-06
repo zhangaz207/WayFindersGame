@@ -229,7 +229,7 @@ export function setUpLevel(scene) {
     createBoxObstacle(5,0,30,10,10,2,[addTranslation(0,0,-20)]);
     createBoxObstacle(5,0,45,10,10,2,[addTranslation(0,0,-20)]);
     createBoxObstacle(-5,0,60,10,10,2,[addTranslation(0,0,-20)]);
-    createBoxObstacle(-5,3,56,10,5,6,[addTranslation(0,0,-20)]);
+    createBoxObstacle(-5,4,52,10,2,14,[addTranslation(0,0,-20)]);
     createBoxObstacle(5,0,75,10,10,2,[addTranslation(0,0,-20)]);
     createBoxObstacle(0,-5,90,10,10,2,[addTranslation(0,0,-20)]);
 

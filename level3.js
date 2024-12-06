@@ -2,11 +2,15 @@ import * as THREE from 'three';
 import { OBB } from 'three/examples/jsm/Addons.js';
 
 
+let player;
+let obstacles = [];
+
 export function setUpLevel(scene) {
 
-    let player;
-    let obstacles = [];
-
+    // while (scene.children.length > 0) {
+    //     scene.remove(scene.children[0]);
+    // }
+    
     class Texture_Rotate {
         vertexShader() {
             return `
@@ -124,6 +128,123 @@ export function setUpLevel(scene) {
             `;
         }
     }
+    
+    
+    // Custom Phong Shader has already been implemented, no need to make change.
+    function createPhongMaterial(materialProperties) {
+        const numLights = 1;
+        // Vertex Shader
+        let vertexShader = `
+            precision mediump float;
+            const int N_LIGHTS = ${numLights};
+            uniform float ambient, diffusivity, specularity, smoothness;
+            uniform vec4 light_positions_or_vectors[N_LIGHTS];
+            uniform vec4 light_colors[N_LIGHTS];
+            uniform float light_attenuation_factors[N_LIGHTS];
+            uniform vec4 shape_color;
+            uniform vec3 squared_scale;
+            uniform vec3 camera_center;
+            varying vec3 N, vertex_worldspace;
+    
+            // ***** PHONG SHADING HAPPENS HERE: *****
+            vec3 phong_model_lights(vec3 N, vec3 vertex_worldspace) {
+                vec3 E = normalize(camera_center - vertex_worldspace);
+                vec3 result = vec3(0.0);
+                for(int i = 0; i < N_LIGHTS; i++) {
+                    vec3 surface_to_light_vector = light_positions_or_vectors[i].xyz - 
+                        light_positions_or_vectors[i].w * vertex_worldspace;
+                    float distance_to_light = length(surface_to_light_vector);
+                    vec3 L = normalize(surface_to_light_vector);
+                    vec3 H = normalize(L + E);
+                    float diffuse = max(dot(N, L), 0.0);
+                    float specular = pow(max(dot(N, H), 0.0), smoothness);
+                    float attenuation = 1.0 / (1.0 + light_attenuation_factors[i] * distance_to_light * distance_to_light);
+                    vec3 light_contribution = shape_color.xyz * light_colors[i].xyz * diffusivity * diffuse
+                                            + light_colors[i].xyz * specularity * specular;
+                    result += attenuation * light_contribution;
+                }
+                return result;
+            }
+    
+            uniform mat4 model_transform;
+            uniform mat4 projection_camera_model_transform;
+    
+            void main() {
+                gl_Position = projection_camera_model_transform * vec4(position, 1.0);
+                N = normalize(mat3(model_transform) * normal / squared_scale);
+                vertex_worldspace = (model_transform * vec4(position, 1.0)).xyz;
+            }
+        `;
+        // Fragment Shader
+        let fragmentShader = `
+            precision mediump float;
+            const int N_LIGHTS = ${numLights};
+            uniform float ambient, diffusivity, specularity, smoothness;
+            uniform vec4 light_positions_or_vectors[N_LIGHTS];
+            uniform vec4 light_colors[N_LIGHTS];
+            uniform float light_attenuation_factors[N_LIGHTS];
+            uniform vec4 shape_color;
+            uniform vec3 camera_center;
+            varying vec3 N, vertex_worldspace;
+    
+            // ***** PHONG SHADING HAPPENS HERE: *****
+            vec3 phong_model_lights(vec3 N, vec3 vertex_worldspace) {
+                vec3 E = normalize(camera_center - vertex_worldspace);
+                vec3 result = vec3(0.0);
+                for(int i = 0; i < N_LIGHTS; i++) {
+                    vec3 surface_to_light_vector = light_positions_or_vectors[i].xyz - 
+                        light_positions_or_vectors[i].w * vertex_worldspace;
+                    float distance_to_light = length(surface_to_light_vector);
+                    vec3 L = normalize(surface_to_light_vector);
+                    vec3 H = normalize(L + E);
+                    float diffuse = max(dot(N, L), 0.0);
+                    float specular = pow(max(dot(N, H), 0.0), smoothness);
+                    float attenuation = 1.0 / (1.0 + light_attenuation_factors[i] * distance_to_light * distance_to_light);
+                    vec3 light_contribution = shape_color.xyz * light_colors[i].xyz * diffusivity * diffuse
+                                            + light_colors[i].xyz * specularity * specular;
+                    result += attenuation * light_contribution;
+                }
+                return result;
+            }
+    
+            void main() {
+                // Compute an initial (ambient) color:
+                vec4 color = vec4(shape_color.xyz * ambient, shape_color.w);
+                // Compute the final color with contributions from lights:
+                color.xyz += phong_model_lights(normalize(N), vertex_worldspace);
+                gl_FragColor = color;
+            }
+        `;
+    
+        let shape_color = new THREE.Vector4(
+            materialProperties.color.r, 
+            materialProperties.color.g, 
+            materialProperties.color.b, 
+            1.0
+        );
+        // Prepare uniforms
+        const uniforms = {
+            ambient: { value: materialProperties.ambient },
+            diffusivity: { value: materialProperties.diffusivity },
+            specularity: { value: materialProperties.specularity },
+            smoothness: { value: materialProperties.smoothness },
+            shape_color: { value: shape_color },
+            squared_scale: { value: new THREE.Vector3(1.0, 1.0, 1.0) },
+            camera_center: { value: new THREE.Vector3() },
+            model_transform: { value: new THREE.Matrix4() },
+            projection_camera_model_transform: { value: new THREE.Matrix4() },
+            light_positions_or_vectors: { value: [] },
+            light_colors: { value: [] },
+            light_attenuation_factors: { value: [] }
+        };
+    
+        // Create the ShaderMaterial using the custom vertex and fragment shaders
+        return new THREE.ShaderMaterial({
+            vertexShader: vertexShader,
+            fragmentShader: fragmentShader,
+            uniforms: uniforms
+        });
+    }
 
     const player_geom = new THREE.SphereGeometry(1, 64, 64);
 
@@ -137,11 +258,11 @@ export function setUpLevel(scene) {
     // });
 
     player = new THREE.Mesh(player_geom, player_material);
-    player.castShadow = true;
+    player.castShadow =true;
     player.geometry.computeBoundingSphere();
     scene.add(player);
 
-    function createBoxObstacle(x_i, y_i, z_i, length, width, height, transforms){
+    function createBoxObstacle(x_i, y_i, z_i, length, width, height, transforms, disapearing =false, shrink =false, scale =false, speedobs =false){
         const box_ob_geometry = new THREE.BoxGeometry(length, width, height);
         const size = new THREE.Vector3(length, width, height);
     
@@ -151,7 +272,11 @@ export function setUpLevel(scene) {
         // color: 0x48ff00, flatShading : true
         // });
         
-        const box_ob_texture = new THREE.TextureLoader().load('assets/smallmoontexture.png');
+
+
+        const box_ob_texture=new THREE.TextureLoader().load('assets/smallmoontexture.png');
+
+
         box_ob_texture.minFilter = THREE.LinearMipMapLinearFilter;
     
         const box_ob_material = new THREE.MeshStandardMaterial({
@@ -160,7 +285,6 @@ export function setUpLevel(scene) {
             color : 0x888888,
         });
 
-        const box_ob_mesh = new THREE.Mesh(box_ob_geometry, box_ob_material);
         // const box_uniforms = {
         //     uTexture: { value: box_ob_texture },
         //     //animation_time: { value: animation_time }
@@ -172,8 +296,18 @@ export function setUpLevel(scene) {
         //     vertexShader: box_ob_shader.vertexShader(),
         //     fragmentShader: box_ob_shader.fragmentShader(),
         // });
-    
+
+
         
+        const buffmaterial = new THREE.MeshPhongMaterial({color: 0x00FF00 });
+        let box_ob_mesh;
+        if (shrink ==false && scale ==false && speedobs ==false ) {
+             box_ob_mesh= new THREE.Mesh(box_ob_geometry, box_ob_material);
+        }
+        else {
+            box_ob_mesh = new THREE.Mesh(box_ob_geometry, buffmaterial);
+
+        }
         //box_ob_mesh.castShadow = true;
         //box_ob_mesh.receiveShadow = true;
 
@@ -188,6 +322,10 @@ export function setUpLevel(scene) {
             y: y_i, 
             z: z_i, 
             tranformations: transforms,
+            vis : disapearing,
+            small: shrink,
+            big : scale,
+            fast : speedobs
         });
     }
     
@@ -229,21 +367,39 @@ export function setUpLevel(scene) {
         return {tr_type: scaling, period, speed, adjust};
     }
     
+    const sizeofbuff=3;
+    createBoxObstacle(0,10,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,true);
+    createBoxObstacle(0,-10,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,true);
+    createBoxObstacle(0,0,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,false,true);
+    createBoxObstacle(10,10,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,true);
+    createBoxObstacle(-10,-10,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,true);
+    createBoxObstacle(10,-10,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,false,true);
+    createBoxObstacle(-10,10,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,true);
+    createBoxObstacle(10,0,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,true);
+    createBoxObstacle(-10,0,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,false,true);
 
-
+    createBoxObstacle(0,10,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,true);
+    createBoxObstacle(0,-10,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,true);
+    createBoxObstacle(0,0,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,false,true);
+    createBoxObstacle(10,10,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,true);
+    createBoxObstacle(-10,-10,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,true);
+    createBoxObstacle(10,-10,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,false,true);
+    createBoxObstacle(-10,10,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,true);
+    createBoxObstacle(10,0,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,true);
+    createBoxObstacle(-10,0,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,false,true);
 
     //good ones //weird teleportation //doesnt apply forward moving transformation
-      createBoxObstacle(0,-32,30,64,8,6,[addOscillatingTranslation(10,0,3,5,0)]);
-      createBoxObstacle(0,-24,36,64,8,6,[addOscillatingTranslation(10,0,3,4,0)]);
-      createBoxObstacle(0,-16,42,64,8,6,[addOscillatingTranslation(10,0,3,3,0)]);
-      createBoxObstacle(0,-8,48,64,8,6, [addOscillatingTranslation(10,0,3,2,0)]);
-     // createBoxObstacle(0,0,54,64,8,6,  [addOscillatingTranslation(10,0,10,1,0)]);
+    //   createBoxObstacle(0,-32,30,64,8,6,[addOscillatingTranslation(10,0,3,5,0)],true);
+    //   createBoxObstacle(0,-24,36,64,8,6,[addOscillatingTranslation(10,0,3,4,0)],true);
+    //   createBoxObstacle(0,-16,42,64,8,6,[addOscillatingTranslation(10,0,3,3,0)],true);
+    //   createBoxObstacle(0,-8,48,64,8,6, [addOscillatingTranslation(10,0,3,2,0)],true);
+    //  // createBoxObstacle(0,0,54,64,8,6,  [addOscillatingTranslation(10,0,10,1,0)]);
 
-      createBoxObstacle(0,32,30,64,8,6,[addOscillatingTranslation(10,0,3,5,0)]);
-      createBoxObstacle(0,24,36,64,8,6,[addOscillatingTranslation(10,0,3,4,0)]);
-      createBoxObstacle(0,16,42,64,8,6,[addOscillatingTranslation(10,0,3,3,0)]);
-      createBoxObstacle(0,8,48,64,8,6, [addOscillatingTranslation(10,0,3,2,0)]);
-      //createBoxObstacle(0,0,54,64,8,6,  [addOscillatingTranslation(10,0,10,1,0)]);
+    //   createBoxObstacle(0,32,30,64,8,6,[addOscillatingTranslation(10,0,3,5,0)],true);
+    //   createBoxObstacle(0,24,36,64,8,6,[addOscillatingTranslation(10,0,3,4,0)],true);
+    //   createBoxObstacle(0,16,42,64,8,6,[addOscillatingTranslation(10,0,3,3,0)],true);
+    //   createBoxObstacle(0,8,48,64,8,6, [addOscillatingTranslation(10,0,3,2,0)],true);
+    //   //createBoxObstacle(0,0,54,64,8,6,  [addOscillatingTranslation(10,0,10,1,0)]);
     
     //set 2
     createBoxObstacle(-12,-12,70,5,3,2,[addRotationZ(-2)]);

@@ -10,10 +10,8 @@ let blendingFactor = 0.1;
 let obstacles;
 let player;
 let isGameActive = false;
-let player_time_cw = 0;
-let player_time_ccw = 0;
-
-
+let speedofobst=5;
+let buffed =false;
 
 //Player properties
 const speed = 0.1;
@@ -21,7 +19,9 @@ let moveLeft = false;
 let moveRight = false;
 let moveUp = false;
 let moveDown = false;
-const pivot = new THREE.Object3D();
+
+let player_time_ccw = 0;
+let player_time_cw = 0;
 
 let obstructed = false;
 
@@ -151,7 +151,7 @@ function removeEventListeners(){
     document.getElementById('level2').removeEventListener('click', () => loadLevel(2));
     document.getElementById('level3').removeEventListener('click', () => loadLevel(3));
     document.getElementById('level4').removeEventListener('click', () => loadLevel(4));
-    document.getElementById('HomeLose').removeEventListener('click', () => showHomeScreen());
+    //document.getElementById('HomeLose').removeEventListener('click', () => showHomeScreen());
     document.getElementById('restart-button').removeEventListener('click', () => loadLevel(currentLevel));
 
 
@@ -212,10 +212,10 @@ function loadLevel(level) {
 
     clock = new THREE.Clock();
 
-    if (level == 4) {
-        pivot.add(player);
-        scene.add(pivot);
-    }   
+    // if (level == 4) {
+    //     pivot.add(player);
+    //     scene.add(pivot);
+    // }   
 
     switch (level) {
         case 1:
@@ -233,9 +233,13 @@ function loadLevel(level) {
                 obstacles = newObstacles;
             });
             break;
-        //case 3:
-        //     import('./levels/level3.js').then(level3 => level3.setupLevel(scene, camera));
-        //     break;
+        case 3:
+            import('./level3.js').then(level3 => {
+                const { player: newPlayer, obstacles: newObstacles } = level3.setUpLevel(scene)
+                player = newPlayer;
+                obstacles = newObstacles;
+            });
+            break;
         case 4:
             import('./level4.js').then(level4 => {
                 const { player: newPlayer, obstacles: newObstacles } = level4.setUpLevel(scene)
@@ -247,6 +251,43 @@ function loadLevel(level) {
     animate();
 }
 
+
+function rgbToHex(r, g, b) {
+    return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+  }
+
+  function convertNumtoLetter(a) {
+    switch(a) {
+        case 0:
+            return "0";
+        case 10:
+            return "a";  
+        // code block
+          break;
+        case 11:
+          return "b";
+          break;
+        case 12:
+            return "c";
+        case 13: 
+            return "d";
+        case 14:
+            return "e";
+        case 15:
+            return "f";
+        default:
+          return a.toString()
+      }
+  }
+  
+  function componentToHex(c) {
+
+    let hex1= Math.floor(c/16);
+    let hex2 = Math.floor(c % 16);
+
+
+    return convertNumtoLetter(hex1) +convertNumtoLetter(hex2);
+  }
 
 
 
@@ -261,8 +302,25 @@ function animate() {
     requestAnimationFrame(animate);
     let delta = clock.getDelta();
     let game_time = clock.getElapsedTime();
-    
-     if (!obstructed){
+   
+
+    if (buffed) {
+        let period10 = game_time % 10.0;
+        let temp;
+        let colorchange;
+        if(period10<=5) {
+            temp =1/5*period10;
+        }
+        else {
+            temp =-1/5 *period10+2;
+        }
+
+
+        colorchange=rgbToHex(255,255*temp, 255*temp);
+        player.material.color.set(colorchange);
+    }
+
+    // if (!obstructed){
         if (currentLevel != 4) {
             if (moveLeft) {
                 if (player.position.x < 15)
@@ -298,7 +356,7 @@ function animate() {
             player.matrixAutoUpdate = false;
             
         }
-    }
+    //}
 
 
     let player_bounding;
@@ -313,31 +371,48 @@ function animate() {
     //     player_bounding.applyMatrix4(player.matrixWorld);
     // }
 
+
+
+    
     obstacles.forEach(function (obs,index){
         let currentdepth = new THREE.Vector4();
         currentdepth.setFromMatrixPosition(obs.mesh.matrixWorld);
-        //console.log('currentdepth',currentdepth.z);
-        
-        if (currentdepth.z >=45) {
+        console.log('currentdepth',currentdepth.z);
+
+
+        if (currentdepth.z >=45 && obs.mesh.visible) {
             obs.mesh.visible =false;
         }
 
-        if(currentdepth.z <45 && currentdepth.z >=-12) {
+        if(currentdepth.z <45 && currentdepth.z >=-12 && !obs.mesh.visible) {
             obs.mesh.castShadow=true;
             obs.mesh.visible=true;
             obs.mesh.receiveShadow =true;
+
+            
         }
 
-        if (currentdepth.z < -12) {
+        if (currentdepth.z < -12 && obs.mesh.visible) {
             obs.mesh.visible =false;
         }
-         if (!obstructed){
+
+        if (obs.vis) {
+            if (currentdepth.z <=25 && obs.mesh.visible) {
+                console.log("now")
+                obs.mesh.visible =false;
+            }
+    
+        }
+        //  if (!obstructed){
             
             let model_transform = new THREE.Matrix4();
-            
+
+
             obs.tranformations.forEach(function (t, index){
 
+
                 let matrix;
+
                 switch(t.tr_type) {
                     case translation:
                         matrix = translationMatrix(t.speedX * game_time,t.speedY*game_time, t.speedZ*game_time);
@@ -362,12 +437,12 @@ function animate() {
                         matrix = rotationMatrixZ(t.speed * Math.sin(game_time));
                         break;
                 }
-    
                 model_transform.multiply(matrix);
+
             });
 
              //constant speed of obstacles moving towards player
-            const obs_incoming = translationMatrix(obs.x,obs.y, obs.z - game_time * 5);
+            const obs_incoming = translationMatrix(obs.x,obs.y, obs.z - game_time * speedofobst);
             model_transform.multiply(obs_incoming);
             
             obs.mesh.matrix.copy(model_transform);
@@ -378,21 +453,54 @@ function animate() {
             //console.log(obs.mesh.userData.obb)
 
             //const bounding = new THREE.Box3().setFromObject(obs.mesh);
-        
+
+
+
             if (checkCollision(obs.mesh.userData.obb, player_bounding)){
                 
-                obstructed = true;
-                // scene.background = null;
-                // // for(var i = scene.children.length - 1; i >= 0; i--) { 
-                // //     obj = scene.children[i];
-                // //     scene.remove(obj); 
-                // // }
-                // // while (scene.children.length > 0){
-                // //     scene.remove(scene.children[0]);
-                // // }
-                // // if (renderer && renderer.domElement && document.body.contains(renderer.domElement)) {
-                // //     document.body.removeChild(renderer.domElement);
-                // //  }
+
+
+                if(obs.small) {
+                    player.scale.x*=0.99;
+                    player.scale.y*=0.99;
+                    player.scale.z*=0.99;
+
+                    obs.mesh.visibile =false;
+                    obs.vis=true;
+                    buffed=true;
+                    return;
+                }
+                if(obs.big) {
+                    player.scale.x*=1.01;
+                    player.scale.y*=1.01;
+                    player.scale.z*=1.01;
+
+                    obs.mesh.visibile =false;
+                    obs.vis=true;
+                    buffed=true;
+
+                    return;
+                }
+                if(obs.fast) {
+                    speedofobst*=2;
+                    obs.mesh.visibile =false;
+                    obs.vis=true;
+                    buffed=true;
+
+                    return;
+                }
+
+                scene.background = null;
+                // for(var i = scene.children.length - 1; i >= 0; i--) { 
+                //     obj = scene.children[i];
+                //     scene.remove(obj); 
+                // }
+                // while (scene.children.length > 0){
+                //     scene.remove(scene.children[0]);
+                // }
+                // if (renderer && renderer.domElement && document.body.contains(renderer.domElement)) {
+                //     document.body.removeChild(renderer.domElement);
+                //  }
 
                 // while (scene.children.length > 0) {
                 //     console.log(scene.children.length)
@@ -413,13 +521,13 @@ function animate() {
                 //     document.body.removeChild(renderer.domElement);
                 // }
                 
-                // isGameActive = false;
-                // showLoseScreen();
-                // return;
+                isGameActive = false;
+                showLoseScreen();
+                return;
                 
             }
 
-        }   
+        // }   
         
     });
 
@@ -518,7 +626,6 @@ function animate() {
     // TODO: 2.b&2.c Update uniform values
     // cube1_uniforms.animation_time.value = animation_time;
     // cube2_uniforms.animation_time.value = animation_time;
-
 
 }
 

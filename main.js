@@ -133,13 +133,13 @@ function showHomeScreen() {
 function showWinScreen() {
     
     document.getElementById('winScreen').style.display = '';
-    document.getElementById('restart-button').addEventListener('click', () => reloadFunct());
+    document.getElementById('restart-button-win').addEventListener('click', () => reloadFunct());
     removeEventListeners();
 }
   
 function showLoseScreen() {
     document.getElementById('loseScreen').style.display = '';
-    document.getElementById('restart-button').addEventListener('click', () => reloadFunct());
+    document.getElementById('restart-button-lose').addEventListener('click', () => reloadFunct());
     removeEventListeners();
 }
 

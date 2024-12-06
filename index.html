@@ -255,6 +255,11 @@
             font-size: 60px;
             animation: flashInOut 3s infinite ease-in-out;
         }
+        #level-complete {
+            color: rgb(0, 128, 43);
+            font-size: 60px;
+            animation: flashInOut 3s infinite ease-in-out;
+        }
         #levelMessage {
             color: lightgreen;
             font-size: 40px;
@@ -309,7 +314,7 @@
     <div id="winScreen">
         <div id="buttonContainer">
             <div id="level-complete">Level Complete</div>
-		    <button id="restart-button-win" onclick="restartGame()">Menu</button>
+		    <button class="restartButton" id="restart-button-win" onclick="restartGame()">Menu</button>
         </div>
 	</div>
 	<div id="winScreen5">

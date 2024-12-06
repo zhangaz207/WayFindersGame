@@ -219,7 +219,7 @@ function loadLevel(level) {
     document.body.appendChild(renderer.domElement);
 
     if (level == 5) {
-        document.getElementById('collectScoreBoard').style.display = '';
+        document.getElementById('collectScoreBoard').style.display = 'block';
     }
     else { 
         document.getElementById('collectScoreBoard').style.display = 'none';
@@ -446,7 +446,7 @@ function animate() {
             obs.mesh.visible =false;
         }
 
-        if(currentdepth.z <45 && currentdepth.z >=-15 && !obs.isWin) {
+        if(currentdepth.z <45 && currentdepth.z >=-15 && !obs.isWin && !obs.collected) {
             obs.mesh.castShadow=true;
             obs.mesh.visible=true;
             obs.mesh.receiveShadow =true;

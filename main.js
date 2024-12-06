@@ -574,9 +574,9 @@ function animate() {
                         }
         
                         if(obs.small) {
-                            player.scale.x*=0.99;
-                            player.scale.y*=0.99;
-                            player.scale.z*=0.99;
+                            p.scale.x*=0.99;
+                            p.scale.y*=0.99;
+                            p.scale.z*=0.99;
         
                             obs.mesh.visibile =false;
                             obs.vis=true;
@@ -584,9 +584,9 @@ function animate() {
                             return;
                         }
                         if(obs.big) {
-                            player.scale.x*=1.01;
-                            player.scale.y*=1.01;
-                            player.scale.z*=1.01;
+                            p.scale.x*=1.01;
+                            p.scale.y*=1.01;
+                            p.scale.z*=1.01;
         
                             obs.mesh.visibile =false;
                             obs.vis=true;

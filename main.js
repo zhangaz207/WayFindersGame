@@ -182,7 +182,7 @@ function loadLevel(level) {
 
     //const scenebackgroundtexture = new THREE.TextureLoader().load('assets/text.png');
     const loader = new THREE.CubeTextureLoader();
-    const texture = loader.load(['assets/finalspacestuff.png','assets/finalspacestuff.png','assets/finalspacestuff.png','assets/finalspacestuff.png','assets/finalspacestuff.png','assets/finalspacestuff.png']);
+    const texture = loader.load(['assets/galaxy.png','assets/galaxy.png','assets/galaxy.png','assets/galaxy.png','assets/galaxy.png','assets/galaxy.png']);
     scene.background = texture;
 
     camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
@@ -193,7 +193,7 @@ function loadLevel(level) {
 
     //const light = new THREE.AmbientLight(0x404040); // Ambient light
     //scene.add(light);
-    directionalLight = new THREE.DirectionalLight(0xffffff, 5);
+    directionalLight = new THREE.DirectionalLight(0xffffff, 8);
     directionalLight.position.set(0,0,-1);
     //directionalLight.position.set(5, 10, -5).normalize();
     directionalLight.castShadow =true;
@@ -255,42 +255,42 @@ function loadLevel(level) {
 }
 
 
-function rgbToHex(r, g, b) {
-    return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
-  }
+// function rgbToHex(r, g, b) {
+//     return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+//   }
 
-  function convertNumtoLetter(a) {
-    switch(a) {
-        case 0:
-            return "0";
-        case 10:
-            return "a";  
-        // code block
-          break;
-        case 11:
-          return "b";
-          break;
-        case 12:
-            return "c";
-        case 13: 
-            return "d";
-        case 14:
-            return "e";
-        case 15:
-            return "f";
-        default:
-          return a.toString()
-      }
-  }
+//   function convertNumtoLetter(a) {
+//     switch(a) {
+//         case 0:
+//             return "0";
+//         case 10:
+//             return "a";  
+//         // code block
+//           break;
+//         case 11:
+//           return "b";
+//           break;
+//         case 12:
+//             return "c";
+//         case 13: 
+//             return "d";
+//         case 14:
+//             return "e";
+//         case 15:
+//             return "f";
+//         default:
+//           return a.toString()
+//       }
+//   }
   
-  function componentToHex(c) {
+//   function componentToHex(c) {
 
-    let hex1= Math.floor(c/16);
-    let hex2 = Math.floor(c % 16);
+//     let hex1= Math.floor(c/16);
+//     let hex2 = Math.floor(c % 16);
 
 
-    return convertNumtoLetter(hex1) +convertNumtoLetter(hex2);
-  }
+//     return convertNumtoLetter(hex1) +convertNumtoLetter(hex2);
+//   }
 
 
 
@@ -307,21 +307,21 @@ function animate() {
     let game_time = clock.getElapsedTime();
    
 
-    if (buffed) {
-        let period10 = game_time % 10.0;
-        let temp;
-        let colorchange;
-        if(period10<=5) {
-            temp =1/5*period10;
-        }
-        else {
-            temp =-1/5 *period10+2;
-        }
+    // if (buffed) {
+    //     let period10 = game_time % 10.0;
+    //     let temp;
+    //     let colorchange;
+    //     if(period10<=5) {
+    //         temp =1/5*period10;
+    //     }
+    //     else {
+    //         temp =-1/5 *period10+2;
+    //     }
 
 
-        colorchange=rgbToHex(255,255*temp, 255*temp);
-        player.material.color.set(colorchange);
-    }
+    //     colorchange=rgbToHex(0,255*temp, 255*temp);
+    //     player.material.color.set(colorchange);
+    // }
 
     // if (!obstructed){
         if (currentLevel != 4) {

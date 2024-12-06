@@ -262,7 +262,7 @@ export function setUpLevel(scene) {
     player.geometry.computeBoundingSphere();
     scene.add(player);
 
-    function createBoxObstacle(x_i, y_i, z_i, length, width, height, transforms, disapearing =false, shrink =false, scale =false, speedobs =false){
+    function createBoxObstacle(x_i, y_i, z_i, length, width, height, transforms, disapearing =false, shrink =false, scale =false, speedobs =false, win = false){
         const box_ob_geometry = new THREE.BoxGeometry(length, width, height);
         const size = new THREE.Vector3(length, width, height);
     
@@ -325,7 +325,8 @@ export function setUpLevel(scene) {
             vis : disapearing,
             small: shrink,
             big : scale,
-            fast : speedobs
+            fast : speedobs,
+            isWin:win
         });
     }
     
@@ -368,25 +369,25 @@ export function setUpLevel(scene) {
     }
     
     const sizeofbuff=3;
-    createBoxObstacle(0,10,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,true);
-    createBoxObstacle(0,-10,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,true);
-    createBoxObstacle(0,0,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,false,true);
-    createBoxObstacle(10,10,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,true);
-    createBoxObstacle(-10,-10,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,true);
-    createBoxObstacle(10,-10,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,false,true);
-    createBoxObstacle(-10,10,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,true);
-    createBoxObstacle(10,0,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,true);
-    createBoxObstacle(-10,0,15,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,false,true);
+    createBoxObstacle(0,10,25,sizeofbuff,sizeofbuff,sizeofbuff,[],false,true);
+    createBoxObstacle(0,-10,25,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,true);
+    createBoxObstacle(0,0,25,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,false,true);
+    createBoxObstacle(10,10,25,sizeofbuff,sizeofbuff,sizeofbuff,[],false,true);
+    createBoxObstacle(-10,-10,25,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,true);
+    createBoxObstacle(10,-10,25,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,false,true);
+    createBoxObstacle(-10,10,25,sizeofbuff,sizeofbuff,sizeofbuff,[],false,true);
+    createBoxObstacle(10,0,25,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,true);
+    createBoxObstacle(-10,0,25,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,false,true);
 
-    createBoxObstacle(0,10,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,true);
-    createBoxObstacle(0,-10,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,true);
-    createBoxObstacle(0,0,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,false,true);
-    createBoxObstacle(10,10,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,true);
-    createBoxObstacle(-10,-10,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,true);
-    createBoxObstacle(10,-10,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,false,true);
-    createBoxObstacle(-10,10,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,true);
-    createBoxObstacle(10,0,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,true);
-    createBoxObstacle(-10,0,20,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,false,true);
+    createBoxObstacle(0,10,80,sizeofbuff,sizeofbuff,sizeofbuff,[],false,true);
+    createBoxObstacle(0,-10,90,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,true);
+    createBoxObstacle(0,0,100,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,false,true);
+    createBoxObstacle(10,10,110,sizeofbuff,sizeofbuff,sizeofbuff,[],false,true);
+    createBoxObstacle(-10,-10,120,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,true);
+    createBoxObstacle(10,-10,130,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,false,true);
+    createBoxObstacle(-10,10,140,sizeofbuff,sizeofbuff,sizeofbuff,[],false,true);
+    createBoxObstacle(10,0,150,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,true);
+    createBoxObstacle(-10,0,160,sizeofbuff,sizeofbuff,sizeofbuff,[],false,false,false,true);
 
     //good ones //weird teleportation //doesnt apply forward moving transformation
     //   createBoxObstacle(0,-32,30,64,8,6,[addOscillatingTranslation(10,0,3,5,0)],true);
@@ -451,6 +452,8 @@ export function setUpLevel(scene) {
     //createBoxObstacle(-16,0,280-mydist,32,64,5,[]);
 
     createBoxObstacle(10,-32,205-mydist,20,5,30,[addOscillatingTranslation(8,0,100,0,-50)]);
+    createBoxObstacle(0,0,230-mydist,64,64,30,[],false,false,false,false,false);
+
     //createBoxObstacle(10,-16,220-mydist,16,25,60,[addOscillatingTranslation(5,0,10,0,0)]);
 
 

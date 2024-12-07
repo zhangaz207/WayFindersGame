@@ -498,7 +498,7 @@ function animate() {
             });
 
             //constant speed of obstacles moving towards player
-            const obs_incoming = translationMatrix(obs.x,obs.y, obs.z - game_time * 5);
+            const obs_incoming = translationMatrix(obs.x,obs.y, obs.z - game_time * speedofobst);
             model_transform.multiply(obs_incoming);
             
             if (currentLevel == 5 && obs.type == 'sphere') {
